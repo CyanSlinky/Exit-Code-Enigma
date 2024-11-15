@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://p26f5fp7po7n"]
+
+[ext_resource type="Script" path="res://map.gd" id="1_vg6v0"]
+[ext_resource type="Shader" path="res://liminal_office.gdshader" id="2_6dyxt"]
+[ext_resource type="Script" path="res://map_mesh.gd" id="2_r36s0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_w3hnm"]
+render_priority = 0
+shader = ExtResource("2_6dyxt")
+shader_parameter/wall_color = Color(0.501961, 0.627451, 0.627451, 1)
+shader_parameter/exposed_wall_color = Color(0.434839, 0.556901, 0.557002, 1)
+shader_parameter/thick_line_color = Color(0, 0.501961, 0.501961, 1)
+shader_parameter/thin_line_color = Color(0.501961, 0.235294, 0, 1)
+shader_parameter/floor_color = Color(0.235294, 0.0784314, 0.0784314, 1)
+shader_parameter/ceiling_color = Color(0.384285, 0.500269, 0.500421, 1)
+shader_parameter/line_height = 5.0
+shader_parameter/thick_line_width = 0.2
+shader_parameter/thin_line_width = 0.1
+shader_parameter/line_offset = 0.4
+shader_parameter/wall_roughness = 0.8
+shader_parameter/wall_specular = 0.1
+shader_parameter/noise_scale = 3.0
+shader_parameter/noise_intensity = 0.3
+shader_parameter/threshold = 0.67
+shader_parameter/noise_octaves = 4
+shader_parameter/noise_persistence = 0.5
+shader_parameter/detail_noise_scale = 10.0
+shader_parameter/detail_noise_intensity = 0.04
+shader_parameter/pixel_size = 0.1
+
+[node name="Map" type="StaticBody3D"]
+script = ExtResource("1_vg6v0")
+
+[node name="MapMesh" type="MeshInstance3D" parent="."]
+material_override = SubResource("ShaderMaterial_w3hnm")
+script = ExtResource("2_r36s0")
+
+[node name="MapCollider" type="CollisionShape3D" parent="."]

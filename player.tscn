@@ -1,0 +1,35 @@
+[gd_scene load_steps=5 format=3 uid="uid://ehxjun1gtjbc"]
+
+[ext_resource type="Script" path="res://player.gd" id="1_ljjms"]
+[ext_resource type="Script" path="res://camera_controller.gd" id="2_q32wd"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_44s3o"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_xv315"]
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_ljjms")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_44s3o")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_xv315")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
+script = ExtResource("2_q32wd")
+
+[node name="Flashlight" type="SpotLight3D" parent="Camera3D"]
+spot_range = 20.0
+spot_attenuation = 0.0
+
+[node name="OverviewCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 80, 0)
+projection = 1
+current = true
+size = 100.0
+
+[node name="OverviewLight" type="DirectionalLight3D" parent="OverviewCamera"]
