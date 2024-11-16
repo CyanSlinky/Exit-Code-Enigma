@@ -1,0 +1,89 @@
+[gd_scene load_steps=11 format=3 uid="uid://dhp8lm7pdbnw1"]
+
+[ext_resource type="Material" uid="uid://bjbqjsqn2wjgd" path="res://exit_frame_material.tres" id="1_qti4r"]
+[ext_resource type="ArrayMesh" uid="uid://btsvug812nqs1" path="res://exit_door.obj" id="2_c1j5s"]
+[ext_resource type="ArrayMesh" uid="uid://mt0g7fcya0km" path="res://exit_frame.obj" id="3_dn8a6"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_38ece"]
+cull_mode = 2
+shading_mode = 0
+
+[sub_resource type="BoxMesh" id="BoxMesh_aqsb4"]
+size = Vector3(2, 3, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_apnvd"]
+size = Vector3(2, 3, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hh6sv"]
+size = Vector3(2.5, 0.5, 3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hq4t2"]
+size = Vector3(0.25, 3, 3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_n851k"]
+size = Vector3(2.5, 4, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6y6du"]
+shading_mode = 0
+albedo_color = Color(0, 0.501961, 0, 1)
+
+[node name="Exit" type="Node3D"]
+
+[node name="Opening" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 2)
+material_override = SubResource("StandardMaterial3D_38ece")
+mesh = SubResource("BoxMesh_aqsb4")
+
+[node name="DoorLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0.5)
+material_override = ExtResource("1_qti4r")
+mesh = ExtResource("2_c1j5s")
+
+[node name="DoorRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 0.5)
+material_override = ExtResource("1_qti4r")
+mesh = ExtResource("2_c1j5s")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 3.26, 0.02)
+text = "EXIT"
+font_size = 64
+outline_size = 0
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.26, 0.02)
+light_color = Color(0, 1, 0, 1)
+omni_range = 10.0
+omni_attenuation = 2.0
+
+[node name="Collision" type="StaticBody3D" parent="."]
+
+[node name="Doors" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0.5)
+shape = SubResource("BoxShape3D_apnvd")
+
+[node name="Top" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.25, 1.5)
+shape = SubResource("BoxShape3D_hh6sv")
+
+[node name="Bottom" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 1.5)
+shape = SubResource("BoxShape3D_hh6sv")
+
+[node name="Left" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.125, 1.5, 1.5)
+shape = SubResource("BoxShape3D_hq4t2")
+
+[node name="Right" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.125, 1.5, 1.5)
+shape = SubResource("BoxShape3D_hq4t2")
+
+[node name="Back" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 3.25)
+shape = SubResource("BoxShape3D_n851k")
+
+[node name="Frame" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
+mesh = ExtResource("3_dn8a6")
+surface_material_override/0 = ExtResource("1_qti4r")
+surface_material_override/1 = SubResource("StandardMaterial3D_6y6du")

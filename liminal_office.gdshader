@@ -112,9 +112,9 @@ void fragment() {
 	//float fine_detail = detail_noise(world_pos, 20.0, pixel_size / 2.0) * 0.05;
 	//float floor_detail = detail_noise(world_pos, 2.0, pixel_size) * 0.02;
 	
-	// Set base color with additional noise for intact wall sections
+	// Set base color with additionasl noise for intact wall sections
 	if (is_exposed) {
-		ALBEDO = exposed_wall_color.rgb + detail * 0.55;
+		ALBEDO = exposed_wall_color.rgb + (detail * 0.55);
 		ROUGHNESS = wall_roughness + detail;
 		SPECULAR = wall_specular + detail;
 	} else {

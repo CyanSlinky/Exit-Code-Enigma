@@ -4,20 +4,28 @@ class_name Map
 @onready var map_mesh: MapMesh = $MapMesh
 @onready var map_collider: CollisionShape3D = $MapCollider
 
-@export var cell_size: float = 4.0
+@export var cell_size: float = 6.0
 @export var wall_height: float = 6.0
 @export var map_width: int = 40
 @export var map_height: int = 40
 
-var cells: Array[Vector2i]
+@export var room_probability: float = 0.01
+@export var room_min_size: int = 2
+@export var room_max_size: int = 5
+
+@export var exit_scene: PackedScene
+
+var cells: Array[Cell]
+var walls: Array[Cell]
 var visited: Dictionary
-var walls: Array[Vector2i]
+var exit_cells: Dictionary
 
 const DIRECTIONS: Array[Vector2i] = [
 	Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 
 func _ready() -> void:
 	generate_map()
+	spawn_exit()
 	map_mesh.map = self
 	map_mesh.update_mesh()
 	update_collider()
@@ -40,99 +48,132 @@ func generate_map() -> void:
 	visited.clear()
 	walls.clear()
 	
-	# Start at (0, 0)
-	var start_pos: Vector2i = Vector2i(0, 0)
-	carve(start_pos)
+	var start_cell: Cell = Cell.new(Vector2i(0, 0))
+	carve(start_cell)
 	
 	# Carve passages using Prim's Algorithm
 	while walls.size() > 0:
-		# Pick a random wall from the list
-		var random_wall_index: int = randi() % walls.size()
-		var wall_pos: Vector2i = walls[random_wall_index]
-		walls.erase(wall_pos)
+		var random_index: int = randi() % walls.size()
+		var wall_cell: Cell = walls[random_index]
+		walls.erase(wall_cell)
 		
-		# Check if carving here connects two unconnected regions
-		if can_carve(wall_pos):
-			carve(wall_pos)
+		if can_carve(wall_cell):
+			carve(wall_cell)
 
-func carve(pos: Vector2i) -> void:
-	if not visited.get(pos, false):
-		cells.append(pos)
-		visited[pos] = true
+func carve(cell: Cell) -> void:
+	if not visited.has(cell.pos):
+		cells.append(cell)
+		visited[cell.pos] = cell
+		if randf() < room_probability:
+			generate_room_around(cell)
 	
-	# Add neighboring walls to the list
 	for direction in DIRECTIONS:
-		var next_pos: Vector2i = pos + direction
-		if not visited.get(next_pos, false) and is_within_bounds(next_pos):
-			walls.append(next_pos)
+		var neighbor_pos: Vector2i = cell.pos + direction
+		if is_within_bounds(neighbor_pos) and not visited.has(neighbor_pos):
+			var neighbor_cell: Cell = Cell.new(neighbor_pos)
+			walls.append(neighbor_cell)
 
-func can_carve(pos: Vector2i) -> bool:
+func can_carve(cell: Cell) -> bool:
 	var unvisited_neighbors: int = 0
-	
-	# Count how many neighbors are unvisited
 	for direction in DIRECTIONS:
-		var neighbor_pos: Vector2i = pos + direction
-		if visited.get(neighbor_pos, false):
+		var neighbor_pos: Vector2i = cell.pos + direction
+		if visited.has(neighbor_pos):
 			unvisited_neighbors += 1
-	
-	# Carve only if it connects exactly one visited cell (i.e., creates a passage)
 	return unvisited_neighbors == 1
 
+func generate_room_around(center: Cell) -> void:
+	var room_width: int = randi_range(room_min_size, room_max_size)
+	var room_height: int = randi_range(room_min_size, room_max_size)
+	
+	var start_x: int = center.pos.x - room_width / 2
+	var start_y: int = center.pos.y - room_height / 2
+	
+	for x in range(start_x, start_x + room_width):
+		for y in range(start_y, start_y + room_height):
+			var room_pos: Vector2i = Vector2i(x, y)
+			if is_within_bounds(room_pos) and not visited.has(room_pos):
+				var room_cell: Cell = Cell.new(room_pos)
+				cells.append(room_cell)
+				visited[room_pos] = room_cell
+
 func is_within_bounds(pos: Vector2i) -> bool:
-	return pos.x >= -map_width / 2.0 and pos.x <= map_width / 2.0 and pos.y >= -map_height / 2.0 and pos.y <= map_height / 2.0
+	return pos.x >= -map_width / 2 and pos.x <= map_width / 2 and pos.y >= -map_height / 2 and pos.y <= map_height / 2
 
-# Function to ensure all cells are accessible
-func ensure_connectivity() -> void:
-	var connected_cells: Array[Vector2i] = []
-	var queue: Array[Vector2i] = [Vector2i(0, 0)]
-	var visited_check: Dictionary = {}
-	
-	# Flood-fill to find all connected cells
-	while queue.size() > 0:
-		var current: Vector2i = queue.pop_front()
-		connected_cells.append(current)
-		visited_check[current] = true
-		
-		for direction in DIRECTIONS:
-			var neighbor: Vector2i = current + direction
-			if visited.get(neighbor, false) and not visited_check.has(neighbor):
-				queue.append(neighbor)
-	
-	# Identify isolated cells and connect them
-	var isolated_cells: Array[Vector2i] = []
-	for cell in cells:
-		if not visited_check.has(cell):
-			isolated_cells.append(cell)
-	
-	# Connect each isolated cell to the nearest connected cell
-	for isolated in isolated_cells:
-		connect_to_maze(isolated, visited_check)
-
-# Function to connect an isolated cell to the nearest connected cell
-func connect_to_maze(cell: Vector2i, visited_check: Dictionary) -> void:
-	var closest_cell: Vector2i = Vector2i()
+func find_cell_near_center_with_wall() -> Cell:
+	var center: Vector2i = Vector2i(0, 0)
+	var closest_cell: Cell = null
 	var min_distance: float = INF
 	
-	# Find the nearest connected cell
-	for connected: Vector2i in visited_check.keys():
-		var distance: float = cell.distance_to(connected)
-		if distance < min_distance:
-			min_distance = distance
-			closest_cell = connected
+	# Iterate over all cells to find the one closest to the center with at least one wall
+	for cell in cells:
+		if has_wall(cell):
+			var distance: float = cell.pos.distance_to(center)
+			if distance < min_distance:
+				min_distance = distance
+				closest_cell = cell
 	
-	# Carve a path from the isolated cell to the nearest connected cell
-	if min_distance < INF:
-		carve_path(cell, closest_cell)
+	return closest_cell
 
-# Function to carve a straight path between two cells
-func carve_path(start: Vector2i, end: Vector2i) -> void:
-	var current_pos: Vector2i = start
+func has_wall(cell: Cell) -> bool:
+	for direction in DIRECTIONS:
+		var neighbor_pos: Vector2i = cell.pos + direction
+		if not visited.has(neighbor_pos):
+			return true
+	return false
+
+func spawn_exit() -> void:
+	var cell: Cell = find_cell_near_center_with_wall()
+	if cell == null:
+		print("No suitable cell found for exit door.")
+		return
 	
-	# Carve a path by moving horizontally first, then vertically
-	while current_pos.x != end.x:
-		current_pos.x += sign(end.x - current_pos.x)
-		carve(current_pos)
+	# Load and instance the exit door scene
+	var exit: Node3D = exit_scene.instantiate() as Node3D
+	var wall_direction: Vector2i = get_wall_direction(cell)
 	
-	while current_pos.y != end.y:
-		current_pos.y += sign(end.y - current_pos.y)
-		carve(current_pos)
+	# Place the door at the wall of the cell
+	if wall_direction != Vector2i.ZERO:
+		var exit_position: Vector3 = get_wall_position(cell, wall_direction)
+		var exit_rotation: Vector3 = get_wall_rotation(wall_direction)
+		
+		exit.transform.origin = exit_position
+		exit.rotation_degrees = exit_rotation
+		
+		add_child(exit)
+		print("Exit spawned at:", exit_position)
+		
+		# Record the cell and direction for creating an opening
+		exit_cells[cell.pos] = wall_direction
+
+func get_wall_direction(cell: Cell) -> Vector2i:
+	for direction in DIRECTIONS:
+		var neighbor_pos: Vector2i = cell.pos + direction
+		if not visited.has(neighbor_pos):
+			return direction
+	return Vector2i.ZERO
+
+func get_wall_position(cell: Cell, direction: Vector2i) -> Vector3:
+	var half_size: float = cell_size / 2.0
+	var x: float = cell.pos.x * cell_size
+	var z: float = cell.pos.y * cell_size
+	var pos: Vector3 = Vector3(x, 0.0, z)
+	
+	match direction:
+		Vector2i.UP:    pos += Vector3(0, 0, -half_size)
+		Vector2i.DOWN:  pos += Vector3(0, 0, half_size)
+		Vector2i.LEFT:  pos += Vector3(-half_size, 0, 0)
+		Vector2i.RIGHT: pos += Vector3(half_size, 0, 0)
+	
+	return pos
+
+func get_wall_rotation(direction: Vector2i) -> Vector3:
+	match direction:
+		Vector2i.UP:
+			return Vector3(0, 180, 0)  # Facing back (towards +Z)
+		Vector2i.DOWN:
+			return Vector3(0, 0, 0)    # Facing forward (towards -Z)
+		Vector2i.LEFT:
+			return Vector3(0, -90, 0)   # Facing right (towards +X)
+		Vector2i.RIGHT:
+			return Vector3(0, 90, 0)  # Facing left (towards -X)
+	return Vector3.ZERO
