@@ -1,0 +1,55 @@
+[gd_scene load_steps=5 format=3 uid="uid://b4308tqbh560r"]
+
+[ext_resource type="ArrayMesh" uid="uid://ce1mjmp8owds8" path="res://shelves_01.obj" id="1_apivq"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ex0rt"]
+albedo_color = Color(0.313726, 0.313726, 0.333333, 1)
+metallic = 0.5
+roughness = 0.5
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dnx6c"]
+size = Vector3(0.1, 4, 0.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_i6wwx"]
+size = Vector3(5.54, 0.1, 1.094)
+
+[node name="ClutterShelf" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = ExtResource("1_apivq")
+surface_material_override/0 = SubResource("StandardMaterial3D_ex0rt")
+surface_material_override/1 = SubResource("StandardMaterial3D_ex0rt")
+
+[node name="Collision" type="StaticBody3D" parent="."]
+
+[node name="Post1" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.83, 2, 0.526)
+shape = SubResource("BoxShape3D_dnx6c")
+
+[node name="Post2" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.83, 2, -0.526)
+shape = SubResource("BoxShape3D_dnx6c")
+
+[node name="Post3" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.83, 2, 0.526)
+shape = SubResource("BoxShape3D_dnx6c")
+
+[node name="Post4" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.83, 2, -0.526)
+shape = SubResource("BoxShape3D_dnx6c")
+
+[node name="Shelf1" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+shape = SubResource("BoxShape3D_i6wwx")
+
+[node name="Shelf2" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
+shape = SubResource("BoxShape3D_i6wwx")
+
+[node name="Shelf3" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.75, 0)
+shape = SubResource("BoxShape3D_i6wwx")
+
+[node name="Shelf4" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.85, 0)
+shape = SubResource("BoxShape3D_i6wwx")

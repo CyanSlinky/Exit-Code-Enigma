@@ -76,6 +76,10 @@ func _physics_process(delta: float) -> void:
 		# Calculate desired movement direction and speed.
 		var camera_forward := camera.transform.basis.z.normalized()
 		var camera_right := camera.transform.basis.x.normalized()
+		camera_forward.y = 0
+		camera_right.y = 0
+		camera_forward = camera_forward.normalized()
+		camera_right = camera_right.normalized()
 		var direction := (camera_right * input_dir.x + camera_forward * input_dir.y).normalized()
 		current_velocity = direction * move_speed
 		current_velocity = current_velocity.lerp(current_velocity, acceleration * delta)

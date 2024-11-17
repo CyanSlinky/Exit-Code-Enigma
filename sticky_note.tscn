@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://bejxdfigoj13c"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0dne3"]
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(1, 1, 0, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_gu5hu"]
+size = Vector2(0.4, 0.4)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ks2ca"]
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(1, 1, 0, 1)
+
+[node name="StickyNote" type="Node3D"]
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.01)
+material_override = SubResource("StandardMaterial3D_0dne3")
+mesh = SubResource("QuadMesh_gu5hu")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(2, 0, 0, 0, -8.74228e-08, -2, 0, 2, -8.74228e-08, 0, 0.01, 0.5)
+material_override = SubResource("StandardMaterial3D_ks2ca")
+mesh = SubResource("QuadMesh_gu5hu")

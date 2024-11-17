@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://ce1mjmp8owds8"
+path="res://.godot/imported/shelves_01.obj-c94d5c2fa7c61139889263cbdc5f562c.mesh"
+
+[deps]
+
+files=["res://.godot/imported/shelves_01.obj-c94d5c2fa7c61139889263cbdc5f562c.mesh"]
+
+source_file="res://shelves_01.obj"
+dest_files=["res://.godot/imported/shelves_01.obj-c94d5c2fa7c61139889263cbdc5f562c.mesh", "res://.godot/imported/shelves_01.obj-c94d5c2fa7c61139889263cbdc5f562c.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

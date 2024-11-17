@@ -5,8 +5,11 @@ uniform vec4 wall_color : source_color = vec4(0.9, 0.9, 0.9, 1.0); // Base wall 
 uniform vec4 exposed_wall_color : source_color = vec4(0.5, 0.3, 0.2, 1.0); // Color of the exposed layer
 uniform vec4 thick_line_color : source_color = vec4(0.0, 1.0, 1.0, 1.0); // Thicker line color
 uniform vec4 thin_line_color : source_color = vec4(0.0, 0.5, 0.5, 1.0); // Thinner line color
-uniform vec4 floor_color : source_color = vec4(0.7, 0.7, 0.7, 1.0); // Floor color
 uniform vec4 ceiling_color : source_color = vec4(0.9, 0.9, 0.9, 1.0); // Ceiling color
+uniform vec3 floor_color : source_color = vec3(0.6, 0.6, 0.6); // Floor color
+uniform vec3 floor_color1 : source_color = vec3(0.9, 0.85, 0.8); // Light beige
+uniform vec3 floor_color2 : source_color = vec3(0.7, 0.65, 0.6); // Warm gray
+uniform vec3 floor_color3 : source_color = vec3(0.5, 0.45, 0.4); // Darker brown
 
 // Line properties
 uniform float line_height : hint_range(-100.0, 100.0) = 5.0;
@@ -19,7 +22,7 @@ uniform float wall_roughness : hint_range(0.0, 1.0) = 0.8;
 uniform float wall_specular : hint_range(0.0, 1.0) = 0.1;
 uniform float noise_scale : hint_range(0.1, 10.0) = 3.0;
 uniform float noise_intensity : hint_range(0.0, 1.0) = 0.3;
-uniform float threshold : hint_range(0.0, 1.0) = 0.5; // Controls the peeling effect
+uniform float threshold : hint_range(0.0, 1.0) = 0.67; // Controls the peeling effect
 uniform int noise_octaves = 4;
 uniform float noise_persistence : hint_range(0.0, 1.0) = 0.5;
 
@@ -29,6 +32,13 @@ uniform float detail_noise_intensity : hint_range(0.0, 0.5) = 0.1;
 
 // Pixelation properties
 uniform float pixel_size : hint_range(0.01, 1.0) = 0.1; // Controls the pixelation level
+
+// Floor properties
+uniform float terrazzo_scale : hint_range(10.0, 100.0) = 10.0; // Controls the density of the specks
+
+// Ceiling properties
+uniform float ceiling_tile_size = 0.6; // Controls the size of each ceiling tile
+uniform float ceiling_grid_line_width = 0.02; // Controls the width of the grid lines between tiles
 
 // Variables for world position and normal
 varying vec3 world_pos;
@@ -92,6 +102,68 @@ float detail_noise(vec3 p, float n_scale, float p_size) {
 	return noise(pixelated_pos * n_scale);
 }
 
+float hash12(vec2 p) {
+	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+	p3 += dot(p3, p3.yzx + 33.33);
+	return fract((p3.x + p3.y) * p3.z);
+}
+
+vec3 terrazzoPattern(vec2 p, float scale, float p_size) {
+	// Pixelation effect
+	vec2 pixel_pos = floor(p / p_size) * p_size;
+	
+	vec2 i = floor(pixel_pos * scale);
+	vec2 f = fract(pixel_pos * scale);
+	vec3 color = floor_color; // Base color of the concrete or resin
+	
+	for (int x = -1; x <= 1; x++) {
+		for (int y = -1; y <= 1; y++) {
+			vec2 offset = vec2(float(x), float(y));
+			vec2 r_offset = vec2(hash12(i + offset), hash12(i + offset + vec2(1.0)));
+			float dist = length(f - r_offset + offset);
+			float radius = 0.1 + 0.1 * hash12(i + offset + vec2(2.0));
+			
+			if (dist < radius) {
+				float mix_ratio = smoothstep(radius, radius - 0.02, dist);
+				float color_choice = hash12(i + offset + vec2(6.0)); // Random choice for color
+				vec3 speck_color = floor_color1;
+				if (color_choice < 0.33) {
+					speck_color = floor_color1;
+				} else if (color_choice < 0.66) {
+					speck_color = floor_color2;
+				} else {
+					speck_color = floor_color3;
+				}
+				color = mix(color, speck_color, mix_ratio);
+			}
+		}
+	}
+	return color;
+}
+
+vec3 ceilingTilePattern(vec2 p, float p_size) {
+	// Pixelation effect
+	vec2 pixel_pos = floor(p / p_size) * p_size;
+	
+	// Calculate the position within each tile
+	vec2 tile_position = mod(p + ceiling_grid_line_width * 0.5, ceiling_tile_size);
+	
+	float w = ceiling_grid_line_width;
+	// Determine if the position is in the 'grout' area (the seams between tiles)
+	bool in_grout = tile_position.x < w || tile_position.y < w;
+	
+	// Base color is the main ceiling color
+	vec3 tile_color = ceiling_color.rgb;
+	
+	// Darken the grout to simulate depth
+	if (in_grout) {
+		tile_color *= 0.8;
+	}
+	
+	return tile_color;
+}
+
+
 void vertex() {
 	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	normal_dir = NORMAL;
@@ -136,14 +208,16 @@ void fragment() {
 	}
 	
 	if (normal_dir.y > 0.9) {
-		ALBEDO = floor_color.rgb + detail;
-		ROUGHNESS = 1.0;
-		SPECULAR = 0.0;
+		vec3 terrazzo_color = terrazzoPattern(world_pos.xz, terrazzo_scale, pixel_size * 0.5);
+		ALBEDO = terrazzo_color + detail * 0.4;
+		ROUGHNESS = 0.5 + detail * 0.4; // Adjust for a slightly glossy finish
+		SPECULAR = 0.3 + detail * 0.4; // Terrazzo floors can be quite reflective
 	}
 	
 	if (normal_dir.y < -0.9) {
-		ALBEDO = ceiling_color.rgb + detail * 0.5;
-		ROUGHNESS = 1.0;
-		SPECULAR = 0.0;
+		vec3 ceiling_tile_color = ceilingTilePattern(world_pos.xz, pixel_size);
+		ALBEDO = ceiling_tile_color + detail * 0.5;
+		ROUGHNESS = 0.4 + detail * 0.5;
+		SPECULAR = 0.2 + detail * 0.5;
 	}
 }

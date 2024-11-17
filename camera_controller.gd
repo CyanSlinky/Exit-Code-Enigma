@@ -29,6 +29,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		pitch = clamp(pitch, min_pitch, max_pitch)
 		if lock_yaw:
 			yaw = clamp(yaw, min_yaw, max_yaw)
-		
-		rotation_degrees.x = pitch
-		rotation_degrees.y = yaw
+
+func _physics_process(_delta: float) -> void:
+	rotation_degrees.x = pitch
+	rotation_degrees.y = yaw

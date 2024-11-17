@@ -7,8 +7,7 @@
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_xv315"]
 
-[node name="Player" type="CharacterBody3D"]
-physics_interpolation_mode = 1
+[node name="Player" type="CharacterBody3D" groups=["Player"]]
 script = ExtResource("1_ljjms")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -34,3 +33,4 @@ current = true
 size = 250.0
 
 [node name="OverviewLight" type="DirectionalLight3D" parent="OverviewCamera"]
+light_energy = 0.2
