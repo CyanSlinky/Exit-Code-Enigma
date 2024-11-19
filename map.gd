@@ -26,7 +26,7 @@ class_name Map
 @export var shelf_ceiling_light_boost: float = 0.42
 
 @export var sticky_note_scene: PackedScene
-@export var num_sticky_notes: int = 12
+@export var num_sticky_notes: int = 36
 @export var min_distance_between_notes: int = 3
 @export var sticky_note_vertical_range: float = 1.0  # Max vertical offset up/down
 @export var sticky_note_horizontal_range: float = 1.0  # Max horizontal offset left/right
@@ -78,6 +78,10 @@ func generate_map() -> void:
 	cells.clear()
 	visited.clear()
 	walls.clear()
+	
+	exit_cells.clear()
+	shelf_cells.clear()
+	used_clues.clear()
 	
 	var start_cell: Cell = Cell.new(Vector2i(0, 0))
 	carve(start_cell)

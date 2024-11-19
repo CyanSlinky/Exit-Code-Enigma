@@ -2,6 +2,7 @@ extends Control
 
 @onready var game_screen: Control = $GameScreen
 @onready var win_screen: Control = $WinScreen
+@onready var pause_screen: Control = $PauseScreen
 
 @onready var notification_label: Label = $GameScreen/HBoxContainer2/VBoxContainer/NotificationLabel
 @onready var interact_label: Label = $GameScreen/HBoxContainer2/VBoxContainer/InteractLabel
@@ -9,6 +10,7 @@ extends Control
 @onready var game_time_elapsed_label: Label = $GameScreen/HBoxContainer/VBoxContainer/GameTimeElapsedLabel
 @onready var time_taken_label: Label = $WinScreen/HBoxContainer/VBoxContainer/TimeTakenLabel
 @onready var clues_found_label: Label = $WinScreen/HBoxContainer/VBoxContainer/CluesFoundLabel
+@onready var win_method_label: Label = $WinScreen/HBoxContainer/VBoxContainer/WinMethodLabel
 
 @onready var notification_timer: Timer = $GameScreen/HBoxContainer2/VBoxContainer/NotificationLabel/NotificationTimer
 @onready var game_timer: Timer = $GameScreen/HBoxContainer/VBoxContainer/GameTimeElapsedLabel/GameTimer
@@ -27,15 +29,43 @@ func _process(_delta: float) -> void:
 
 func display_win_screen() -> void:
 	game_screen.visible = false
+	pause_screen.visible = false
 	time_taken_label.text = "Time taken: " + format_time(GameData.elapsed_time)
 	clues_found_label.text = "Clues found: " + str(GameData.collected_clues.size())
+	win_method_label.text = "Legit win."
+	if GameData.used_silly:
+		win_method_label.text = "Silly win."
+	elif GameData.enigma_outcome == 1:
+		win_method_label.text = "Enigma win."
 	win_screen.visible = true
 
 func display_game_screen() -> void:
 	for i in range(6):
 		update_character(i + 1, "_")
 	win_screen.visible = false
+	pause_screen.visible = false
 	game_screen.visible = true
+
+func _unhandled_input(_event: InputEvent) -> void:
+		if Input.is_action_just_pressed("pause"):
+			if GameData.player.overview_camera.current:
+				GameData.player.camera.current = true
+				GameData.player.overview_light.visible = false
+			elif GameData.exit.was_using_terminal:
+				GameData.exit.was_using_terminal = false
+			else:
+				toggle_pause_screen()
+
+func toggle_pause_screen() -> void:
+	#print("toggled pause")
+	if pause_screen.visible:
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		pause_screen.visible = false
+		get_tree().paused = false
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		pause_screen.visible = true
+		get_tree().paused = true
 
 func display_interact_label(label_text: String) -> void:
 	var key_name: String = "N/A"

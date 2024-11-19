@@ -7,6 +7,7 @@ class_name Player
 
 @onready var overview_camera: Camera3D = $OverviewCamera
 @onready var overview_light: DirectionalLight3D = $OverviewCamera/OverviewLight
+@onready var map_indicator: MeshInstance3D = $MapIndicator
 
 @export var walk_speed: float = 5.0
 @export var sprint_speed: float = 15.0
@@ -58,6 +59,9 @@ func _unhandled_input(_event: InputEvent) -> void:
 			overview_light.visible = true
 
 func _process(delta: float) -> void:
+	var camera_yaw := camera.global_transform.basis.get_euler().y
+	map_indicator.rotation_degrees.y = rad_to_deg(camera_yaw)
+	
 	if interact_ray.is_colliding() and camera.current:
 		var collider := interact_ray.get_collider()
 		if collider == null:

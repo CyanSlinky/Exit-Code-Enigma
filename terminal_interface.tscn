@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://bi445vcm6dkli"]
+[gd_scene load_steps=6 format=3 uid="uid://bi445vcm6dkli"]
 
 [ext_resource type="FontFile" uid="uid://ckc72m5mswmg6" path="res://kroe0555.ttf" id="1_6j130"]
 
@@ -9,6 +9,11 @@
 [sub_resource type="LabelSettings" id="LabelSettings_srrs7"]
 font = ExtResource("1_6j130")
 font_size = 32
+font_color = Color(0, 1, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_og8wt"]
+font = ExtResource("1_6j130")
+font_size = 20
 font_color = Color(0, 1, 0, 1)
 
 [node name="TerminalInterface" type="Control"]
@@ -74,9 +79,10 @@ caret_blink = true
 
 [node name="CodeResultLabel" type="Label" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
-label_settings = SubResource("LabelSettings_srrs7")
+label_settings = SubResource("LabelSettings_og8wt")
 horizontal_alignment = 1
 vertical_alignment = 1
+autowrap_mode = 2
 uppercase = true
 
 [node name="HSeparator2" type="HSeparator" parent="HBoxContainer/VBoxContainer"]

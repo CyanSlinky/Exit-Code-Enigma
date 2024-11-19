@@ -21,6 +21,7 @@ var last_event_time: float = -1.0
 
 var is_open: bool
 var using_terminal: bool
+var was_using_terminal: bool
 
 var player: Node3D
 
@@ -153,6 +154,7 @@ func exit_closed() -> void:
 	doors_collider.disabled = false
 
 func toggle_terminal_usage() -> void:
+	#print("toggled terminal")
 	using_terminal = !using_terminal
 	if using_terminal:
 		#GUI.override_interact_text = "Stop using terminal"
@@ -163,6 +165,7 @@ func toggle_terminal_usage() -> void:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		#terminal.show_terminal_view()
 	else:
+		was_using_terminal = true
 		#GUI.override_interact_text = ""
 		player.enable_movement()
 		terminal_camera.current = false

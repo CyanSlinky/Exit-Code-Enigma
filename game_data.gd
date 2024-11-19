@@ -7,6 +7,11 @@ var exit_code: String
 var clues: Array[Dictionary]
 var collected_clues: Array[int]
 
+var exit_code_length: int = 6
+var enigma_outcome: int
+var silly_result: bool
+var used_silly: bool
+
 var map: Map
 var exit: Exit
 var player: Player
@@ -16,7 +21,13 @@ func _ready() -> void:
 	start_game()
 
 func start_game() -> void:
-	print("start")
+	#print("start")
+	GUI.pause_screen.visible = false
+	get_tree().paused = false
+	randomize()
+	used_silly = false
+	enigma_outcome = randi_range(1, 10)
+	silly_result = randi_range(0, 1)
 	generate_exit_code()
 	generate_clues()
 	elapsed_time = 0
@@ -45,8 +56,7 @@ func generate_exit_code() -> void:
 	# Simple example: randomly generate a 6-character code
 	exit_code = ""
 	var characters: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	var code_length: int = 6
-	for i in range(code_length):
+	for i in range(exit_code_length):
 		exit_code += characters[randi() % characters.length()]
 	print("Exit Code Generated: ", exit_code)
 
@@ -68,10 +78,10 @@ func get_new_clue() -> String:
 		collected_clues.append(chosen_clue.index)  # Track by index.
 		GUI.update_character(chosen_clue.index + 1, chosen_clue.character)  # Update GUI.
 		if uncollected_clues.size() <= 0:
-			GUI.display_notification("All clues collected. The exit code is: " + exit_code)
+			GUI.display_notification("Enough clues collected. The exit code is: " + exit_code)
 		return chosen_clue.text
 	else:
-		return "All clues collected. The exit code is: " + exit_code
+		return "Enough clues collected. The exit code is: " + exit_code
 
 func is_not_collected(clue: Dictionary) -> bool:
 	return not collected_clues.has(clue.index)
