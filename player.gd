@@ -1,6 +1,8 @@
 extends CharacterBody3D
+class_name Player
 
 @onready var camera: CameraController = $Camera3D
+@onready var interact_ray: RayCast3D = $Camera3D/InteractRay
 @onready var flashlight: SpotLight3D = $Camera3D/Flashlight
 
 @onready var overview_camera: Camera3D = $OverviewCamera
@@ -17,17 +19,26 @@ extends CharacterBody3D
 @export var sprint_fov: float = 80.0
 @export var shake_intensity: float = 0.1
 
+var movement_restricted: bool
+var flashlight_was_visible: bool
+
 var move_speed: float
 var target_speed: float
 var current_velocity: Vector3
 
 func _ready() -> void:
+	GameData.player = self
 	camera.current = true
 	overview_light.visible = false
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	move_speed = walk_speed
 
 func _unhandled_input(_event: InputEvent) -> void:
+	if Input.is_action_just_pressed("interact") and interact_ray.is_colliding() and camera.current:
+		var collider := interact_ray.get_collider()
+		if collider and collider.has_method("interact"):
+			collider.interact()  # Call the interact method on the collider
+	
 	if Input.is_action_just_pressed("toggle_cursor_visibility"):
 		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
@@ -35,17 +46,28 @@ func _unhandled_input(_event: InputEvent) -> void:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
 	if Input.is_action_just_pressed("flashlight"):
-		flashlight.visible = !flashlight.visible
+		if camera.current:
+			flashlight.visible = !flashlight.visible
 	
 	if Input.is_action_just_pressed("toggle_overview"):
 		if overview_camera.current:
 			camera.current = true
 			overview_light.visible = false
-		else:
+		elif camera.current:
 			overview_camera.current = true
 			overview_light.visible = true
 
 func _process(delta: float) -> void:
+	if interact_ray.is_colliding() and camera.current:
+		var collider := interact_ray.get_collider()
+		if collider == null:
+			return
+		var interactable: Interactable = collider as Interactable
+		if interactable != null:
+			GUI.display_interact_label(interactable.interact_prompt)
+	else:
+		GUI.hide_interact_label()
+	
 	target_speed = sprint_speed if Input.is_action_pressed("sprint") else walk_speed
 	if move_speed < target_speed:
 		move_speed = lerp(move_speed, target_speed, acceleration * delta)
@@ -88,4 +110,19 @@ func _physics_process(delta: float) -> void:
 	velocity.x = current_velocity.x
 	velocity.z = current_velocity.z
 	
+	if movement_restricted:
+		velocity = Vector3.ZERO
+	
 	move_and_slide()
+
+func restrict_movement() -> void:
+	movement_restricted = true
+	if flashlight.visible:
+		flashlight_was_visible = true
+		flashlight.visible = false
+
+func enable_movement() -> void:
+	movement_restricted = false
+	if flashlight_was_visible:
+		flashlight.visible = true
+		flashlight_was_visible = false

@@ -1,4 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://bejxdfigoj13c"]
+[gd_scene load_steps=7 format=3 uid="uid://bejxdfigoj13c"]
+
+[ext_resource type="Script" path="res://sticky_note.gd" id="1_174a7"]
+[ext_resource type="PackedScene" uid="uid://b68t68u7w22om" path="res://interactable.tscn" id="1_ycsqa"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0dne3"]
 cull_mode = 2
@@ -13,7 +16,10 @@ cull_mode = 2
 shading_mode = 0
 albedo_color = Color(1, 1, 0, 1)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_81dya"]
+
 [node name="StickyNote" type="Node3D"]
+script = ExtResource("1_174a7")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.01)
@@ -24,3 +30,11 @@ mesh = SubResource("QuadMesh_gu5hu")
 transform = Transform3D(2, 0, 0, 0, -8.74228e-08, -2, 0, 2, -8.74228e-08, 0, 0.01, 0.5)
 material_override = SubResource("StandardMaterial3D_ks2ca")
 mesh = SubResource("QuadMesh_gu5hu")
+
+[node name="Interactable" parent="." instance=ExtResource("1_ycsqa")]
+interact_prompt = "Pick up note"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interactable"]
+shape = SubResource("BoxShape3D_81dya")
+
+[connection signal="interaction_occurred" from="Interactable" to="." method="_on_interactable_interaction_occurred"]

@@ -11,6 +11,7 @@ class_name CameraController
 var pitch: float
 var yaw: float
 
+var locked: bool
 var lock_yaw: bool
 
 # Called when the node enters the scene tree for the first time.
@@ -31,5 +32,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			yaw = clamp(yaw, min_yaw, max_yaw)
 
 func _physics_process(_delta: float) -> void:
+	if locked:
+		return
+	
 	rotation_degrees.x = pitch
 	rotation_degrees.y = yaw

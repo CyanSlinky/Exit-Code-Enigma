@@ -217,7 +217,7 @@ void fragment() {
 	if (normal_dir.y < -0.9) {
 		vec3 ceiling_tile_color = ceilingTilePattern(world_pos.xz, pixel_size);
 		ALBEDO = ceiling_tile_color + detail * 0.5;
-		ROUGHNESS = 0.4 + detail * 0.5;
-		SPECULAR = 0.2 + detail * 0.5;
+		ROUGHNESS = 0.8 + detail * 0.5;
+		SPECULAR = 0.1 + detail * 0.5;
 	}
 }

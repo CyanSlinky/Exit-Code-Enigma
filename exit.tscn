@@ -1,8 +1,15 @@
-[gd_scene load_steps=11 format=3 uid="uid://dhp8lm7pdbnw1"]
+[gd_scene load_steps=22 format=3 uid="uid://dhp8lm7pdbnw1"]
 
 [ext_resource type="Material" uid="uid://bjbqjsqn2wjgd" path="res://exit_frame_material.tres" id="1_qti4r"]
+[ext_resource type="Script" path="res://exit.gd" id="1_yxhgq"]
 [ext_resource type="ArrayMesh" uid="uid://btsvug812nqs1" path="res://exit_door.obj" id="2_c1j5s"]
 [ext_resource type="ArrayMesh" uid="uid://mt0g7fcya0km" path="res://exit_frame.obj" id="3_dn8a6"]
+[ext_resource type="ArrayMesh" uid="uid://c0o6uf140oibk" path="res://exit_terminal.obj" id="5_h67gl"]
+[ext_resource type="PackedScene" uid="uid://b68t68u7w22om" path="res://interactable.tscn" id="6_1xwy7"]
+[ext_resource type="PackedScene" uid="uid://c1x7ky1uqg8lo" path="res://terminal.tscn" id="7_oxlba"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_e473q"]
+size = Vector3(2, 3, 2)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_38ece"]
 cull_mode = 2
@@ -23,16 +30,45 @@ size = Vector3(0.25, 3, 3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_n851k"]
 size = Vector3(2.5, 4, 0.5)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_nr8li"]
+size = Vector3(0.75, 2, 0.75)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6y6du"]
 shading_mode = 0
 albedo_color = Color(0, 0.501961, 0, 1)
 
-[node name="Exit" type="Node3D"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_420eg"]
+albedo_color = Color(0.671068, 0.650595, 0.531312, 1)
 
-[node name="Opening" type="MeshInstance3D" parent="."]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jaars"]
+resource_local_to_scene = true
+metallic_specular = 0.25
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jdf4r"]
+albedo_color = Color(0.37046, 0.354624, 0.264223, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wfuh0"]
+size = Vector3(0.55, 0.45, 0.68)
+
+[sub_resource type="QuadMesh" id="QuadMesh_3wd66"]
+flip_faces = true
+size = Vector2(0.25, 0.2)
+
+[node name="Exit" type="Node3D"]
+script = ExtResource("1_yxhgq")
+
+[node name="ExitArea" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 2)
+collision_layer = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ExitArea"]
+shape = SubResource("BoxShape3D_e473q")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ExitArea"]
 material_override = SubResource("StandardMaterial3D_38ece")
 mesh = SubResource("BoxMesh_aqsb4")
+skeleton = NodePath("../..")
 
 [node name="DoorLeft" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0.5)
@@ -82,8 +118,52 @@ shape = SubResource("BoxShape3D_hq4t2")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 3.25)
 shape = SubResource("BoxShape3D_n851k")
 
+[node name="Terminal" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 1, -0.375)
+shape = SubResource("BoxShape3D_nr8li")
+
 [node name="Frame" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
 mesh = ExtResource("3_dn8a6")
 surface_material_override/0 = ExtResource("1_qti4r")
 surface_material_override/1 = SubResource("StandardMaterial3D_6y6du")
+
+[node name="ExitTerminal" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
+mesh = ExtResource("5_h67gl")
+surface_material_override/0 = SubResource("StandardMaterial3D_420eg")
+surface_material_override/1 = SubResource("StandardMaterial3D_jaars")
+surface_material_override/2 = SubResource("StandardMaterial3D_jdf4r")
+surface_material_override/3 = SubResource("StandardMaterial3D_jdf4r")
+
+[node name="TerminalCamera" type="Camera3D" parent="ExitTerminal"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 1.7, -1.1)
+
+[node name="TerminalLight" type="OmniLight3D" parent="ExitTerminal/TerminalCamera"]
+visible = false
+light_energy = 0.2
+
+[node name="Interactable" parent="ExitTerminal" instance=ExtResource("6_1xwy7")]
+interact_prompt = "Use terminal"
+
+[node name="Collider" type="CollisionShape3D" parent="ExitTerminal/Interactable"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -0.375)
+shape = SubResource("BoxShape3D_nr8li")
+
+[node name="MonitorArea" type="Area3D" parent="ExitTerminal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.69, -0.48)
+collision_layer = 4
+input_capture_on_drag = true
+priority = 10
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ExitTerminal/MonitorArea"]
+shape = SubResource("BoxShape3D_wfuh0")
+
+[node name="MonitorQuad" type="MeshInstance3D" parent="ExitTerminal/MonitorArea"]
+visible = false
+mesh = SubResource("QuadMesh_3wd66")
+
+[node name="Terminal" parent="." instance=ExtResource("7_oxlba")]
+
+[connection signal="body_entered" from="ExitArea" to="." method="_on_exit_area_body_entered"]
+[connection signal="interaction_occurred" from="ExitTerminal/Interactable" to="." method="_on_interactable_interaction_occurred"]

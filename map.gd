@@ -22,9 +22,10 @@ class_name Map
 
 @export var ceiling_light_scene: PackedScene
 @export var ceiling_light_probability: float = 0.1
+@export var shelf_ceiling_light_boost: float = 0.42
 
 @export var sticky_note_scene: PackedScene
-@export var num_sticky_notes: int = 10
+@export var num_sticky_notes: int = 12
 @export var min_distance_between_notes: int = 3
 @export var sticky_note_vertical_range: float = 1.0  # Max vertical offset up/down
 @export var sticky_note_horizontal_range: float = 1.0  # Max horizontal offset left/right
@@ -34,6 +35,7 @@ var walls: Array[Cell]
 var visited: Dictionary
 var exit_cells: Dictionary
 var shelf_cells: Dictionary
+var used_clues: Dictionary
 
 const DIRECTIONS: Array[Vector2i] = [
 	Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
@@ -317,7 +319,7 @@ func place_sticky_note_in_cell(cell: Cell) -> void:
 	if wall_direction == Vector2i.ZERO:
 		return
 	
-	var sticky_note: Node3D = sticky_note_scene.instantiate() as Node3D
+	var sticky_note: StickyNote = sticky_note_scene.instantiate() as StickyNote
 	var sticky_note_position: Vector3 = get_wall_position(cell, wall_direction)
 	var sticky_note_rotation: Vector3 = get_wall_rotation(wall_direction)
 	
@@ -360,12 +362,16 @@ func spawn_ceiling_lights() -> void:
 		return
 	
 	for cell in cells:
-		# Skip cells that already have certain features like exits or shelves if necessary
-		if exit_cells.has(cell.pos) or shelf_cells.has(cell.pos):
-			continue
+		var light_probability: float = ceiling_light_probability
+		# Make sure the exit cell has a light source
+		if exit_cells.has(cell.pos):
+			light_probability = 1.0
 		
-		# Place a ceiling light based on the probability
-		if randf() < ceiling_light_probability:
+		if shelf_cells.has(cell.pos):
+			light_probability += shelf_ceiling_light_boost
+		
+		# Place a ceiling light based on the adjusted probability
+		if randf() < light_probability:
 			place_ceiling_light_in_cell(cell)
 
 func place_ceiling_light_in_cell(cell: Cell) -> void:

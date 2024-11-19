@@ -1,9 +1,13 @@
-[gd_scene load_steps=5 format=3 uid="uid://ehxjun1gtjbc"]
+[gd_scene load_steps=6 format=3 uid="uid://ehxjun1gtjbc"]
 
 [ext_resource type="Script" path="res://player.gd" id="1_ljjms"]
 [ext_resource type="Script" path="res://camera_controller.gd" id="2_q32wd"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_44s3o"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nve2s"]
+shading_mode = 0
+albedo_color = Color(0, 1, 0, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_xv315"]
 
@@ -16,11 +20,21 @@ shape = SubResource("CapsuleShape3D_44s3o")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+visible = false
+material_override = SubResource("StandardMaterial3D_nve2s")
+cast_shadow = 0
 mesh = SubResource("CapsuleMesh_xv315")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 script = ExtResource("2_q32wd")
+
+[node name="InteractRay" type="RayCast3D" parent="Camera3D"]
+target_position = Vector3(0, 0, -3)
+collision_mask = 2
+hit_back_faces = false
+collide_with_areas = true
+collide_with_bodies = false
 
 [node name="Flashlight" type="SpotLight3D" parent="Camera3D"]
 spot_range = 20.0
