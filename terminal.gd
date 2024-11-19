@@ -32,5 +32,8 @@ func _on_code_entry_field_text_submitted(new_text: String) -> void:
 	if new_text == GameData.exit_code:
 		code_result_label.text = "exit opened."
 		GameData.exit.open_exit()
+	elif new_text == "ENIGMA":
+		code_result_label.text = "clever."
+		GameData.exit.open_exit()
 	else:
 		code_result_label.text = "nothing happens."

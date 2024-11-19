@@ -5,8 +5,13 @@ extends Control
 
 @onready var notification_label: Label = $GameScreen/HBoxContainer2/VBoxContainer/NotificationLabel
 @onready var interact_label: Label = $GameScreen/HBoxContainer2/VBoxContainer/InteractLabel
+@onready var fps_label: Label = $GameScreen/HBoxContainer/VBoxContainer2/FPSLabel
+@onready var game_time_elapsed_label: Label = $GameScreen/HBoxContainer/VBoxContainer/GameTimeElapsedLabel
+@onready var time_taken_label: Label = $WinScreen/HBoxContainer/VBoxContainer/TimeTakenLabel
+@onready var clues_found_label: Label = $WinScreen/HBoxContainer/VBoxContainer/CluesFoundLabel
 
 @onready var notification_timer: Timer = $GameScreen/HBoxContainer2/VBoxContainer/NotificationLabel/NotificationTimer
+@onready var game_timer: Timer = $GameScreen/HBoxContainer/VBoxContainer/GameTimeElapsedLabel/GameTimer
 
 @onready var pass_character_1: Label = $GameScreen/HBoxContainer/VBoxContainer/HBoxContainer/PassCharacter1
 @onready var pass_character_2: Label = $GameScreen/HBoxContainer/VBoxContainer/HBoxContainer/PassCharacter2
@@ -17,9 +22,20 @@ extends Control
 
 var override_interact_text: String
 
+func _process(_delta: float) -> void:
+	fps_label.text = "FPS " + str(Engine.get_frames_per_second())
+
 func display_win_screen() -> void:
 	game_screen.visible = false
+	time_taken_label.text = "Time taken: " + format_time(GameData.elapsed_time)
+	clues_found_label.text = "Clues found: " + str(GameData.collected_clues.size())
 	win_screen.visible = true
+
+func display_game_screen() -> void:
+	for i in range(6):
+		update_character(i + 1, "_")
+	win_screen.visible = false
+	game_screen.visible = true
 
 func display_interact_label(label_text: String) -> void:
 	var key_name: String = "N/A"
@@ -63,3 +79,19 @@ func update_character(index: int, character: String) -> void:
 			pass_character_5.text = character
 		6:
 			pass_character_6.text = character
+
+func _on_game_timer_timeout() -> void:
+	GameData.elapsed_time += 1
+	game_time_elapsed_label.text = format_time(GameData.elapsed_time)
+
+func format_time(total_seconds: int) -> String:
+	# Calculate hours, minutes, and seconds
+	var hours: int = total_seconds / 3600
+	var minutes: int = (total_seconds % 3600) / 60
+	var seconds: int = total_seconds % 60
+	# Format the time into a string of hh:mm:ss
+	return "%02d:%02d:%02d" % [hours, minutes, seconds]
+
+func _on_restart_button_pressed() -> void:
+	#get_tree().reload_current_scene()
+	GameData.start_game()

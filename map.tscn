@@ -50,3 +50,5 @@ material_override = SubResource("ShaderMaterial_w3hnm")
 script = ExtResource("2_r36s0")
 
 [node name="MapCollider" type="CollisionShape3D" parent="."]
+
+[node name="Objects" type="Node3D" parent="."]

@@ -3,6 +3,7 @@ class_name Map
 
 @onready var map_mesh: MapMesh = $MapMesh
 @onready var map_collider: CollisionShape3D = $MapCollider
+@onready var objects: Node3D = $Objects
 
 @export var cell_size: float = 6.0
 @export var wall_height: float = 6.0
@@ -41,6 +42,11 @@ const DIRECTIONS: Array[Vector2i] = [
 	Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 
 func _ready() -> void:
+	update_map()
+
+func update_map() -> void:
+	GameData.map = self
+	clear_objects()
 	generate_map()
 	spawn_exit()
 	spawn_shelf()
@@ -49,6 +55,11 @@ func _ready() -> void:
 	map_mesh.map = self
 	map_mesh.update_mesh()
 	update_collider()
+
+func clear_objects() -> void:
+	for n in objects.get_children():
+		objects.remove_child(n)
+		n.queue_free()
 
 func update_collider() -> void:
 	var shape: ConcavePolygonShape3D = ConcavePolygonShape3D.new()
@@ -159,7 +170,7 @@ func spawn_exit() -> void:
 		exit.transform.origin = exit_position
 		exit.rotation_degrees = exit_rotation
 		
-		add_child(exit)
+		objects.add_child(exit)
 		#print("Exit spawned at:", exit_position)
 		
 		# Record the cell and direction for creating an opening
@@ -248,7 +259,7 @@ func place_shelf_in_cell(cell: Cell) -> void:
 	
 	shelf.transform.origin = shelf_position + offset
 	shelf.rotation_degrees = shelf_rotation
-	add_child(shelf)
+	objects.add_child(shelf)
 	
 	# Mark this cell and wall as having a shelf
 	if not shelf_cells.has(cell.pos):
@@ -342,7 +353,7 @@ func place_sticky_note_in_cell(cell: Cell) -> void:
 	
 	sticky_note.transform.origin = sticky_note_position
 	sticky_note.rotation_degrees = sticky_note_rotation
-	add_child(sticky_note)
+	objects.add_child(sticky_note)
 
 func get_free_wall_direction(cell: Cell) -> Vector2i:
 	for direction in DIRECTIONS:
@@ -397,4 +408,4 @@ func place_ceiling_light_in_cell(cell: Cell) -> void:
 	ceiling_light.transform.origin = selected_position
 	#ceiling_light.rotation_degrees = Vector3(0, randf_range(0, 360), 0)  # Random rotation around the y-axis
 	
-	add_child(ceiling_light)
+	objects.add_child(ceiling_light)

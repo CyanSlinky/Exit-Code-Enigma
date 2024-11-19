@@ -18,6 +18,10 @@ func update_mesh() -> void:
 	if map == null:
 		return
 	
+	collision_vertices.clear()
+	collision_indices.clear()
+	mesh = null
+	
 	var st: SurfaceTool = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	

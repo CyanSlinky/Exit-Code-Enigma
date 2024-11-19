@@ -1,13 +1,17 @@
-[gd_scene load_steps=4 format=3 uid="uid://dyr845je3hws3"]
+[gd_scene load_steps=5 format=3 uid="uid://dyr845je3hws3"]
 
 [ext_resource type="Script" path="res://ceiling_light.gd" id="1_eyo3l"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qn5qt"]
 resource_local_to_scene = true
 shading_mode = 0
+albedo_color = Color(0, 0, 0, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_mdkod"]
 size = Vector3(2, 0.1, 2)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_06b08"]
+radius = 20.0
 
 [node name="CeilingLight" type="Node3D"]
 script = ExtResource("1_eyo3l")
@@ -22,17 +26,10 @@ visible = false
 shadow_enabled = true
 omni_range = 20.0
 
-[node name="RayCast" type="RayCast3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+[node name="DetectionArea" type="Area3D" parent="."]
 
-[node name="RayCast1" type="RayCast3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, -0.05, -1)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]
+shape = SubResource("SphereShape3D_06b08")
 
-[node name="RayCast2" type="RayCast3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, -0.05, 1)
-
-[node name="RayCast3" type="RayCast3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, -0.05, -1)
-
-[node name="RayCast4" type="RayCast3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, -0.05, 1)
+[connection signal="body_entered" from="DetectionArea" to="." method="_on_detection_area_body_entered"]
+[connection signal="body_exited" from="DetectionArea" to="." method="_on_detection_area_body_exited"]

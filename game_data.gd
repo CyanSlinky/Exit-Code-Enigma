@@ -2,18 +2,39 @@ extends Node
 
 #signal clue_collected(clue_text: String)
 
+var elapsed_time: int
 var exit_code: String
 var clues: Array[Dictionary]
 var collected_clues: Array[int]
 
+var map: Map
 var exit: Exit
 var player: Player
 
 func _ready() -> void:
+	await GUI.ready
+	start_game()
+
+func start_game() -> void:
+	print("start")
 	generate_exit_code()
 	generate_clues()
+	elapsed_time = 0
+	GUI.game_timer.start()
+	if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	GUI.display_game_screen()
+	if player != null:
+		player.position = Vector3.ZERO
+		player.enable_movement()
+		player.camera.locked = false
+	if map != null:
+		map.update_map()
 
 func win_game() -> void:
+	GUI.game_timer.stop()
+	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	GUI.display_win_screen()
 	player.restrict_movement()
 	player.camera.locked = true
@@ -30,6 +51,8 @@ func generate_exit_code() -> void:
 	print("Exit Code Generated: ", exit_code)
 
 func generate_clues() -> void:
+	clues.clear()
+	collected_clues.clear()
 	for i in range(exit_code.length()):
 		var clue_text: String = "Character at position %d is '%s'." % [i + 1, exit_code[i]]
 		clues.append({
