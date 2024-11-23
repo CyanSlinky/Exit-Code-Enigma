@@ -9,6 +9,8 @@ class_name Player
 @onready var overview_light: DirectionalLight3D = $OverviewCamera/OverviewLight
 @onready var map_indicator: MeshInstance3D = $MapIndicator
 
+@onready var footstep_audio: AudioStreamPlayer3D = $FootstepAudio
+
 @export var walk_speed: float = 5.0
 @export var sprint_speed: float = 15.0
 @export var acceleration: float = 5.0
@@ -57,6 +59,12 @@ func _unhandled_input(_event: InputEvent) -> void:
 		elif camera.current:
 			overview_camera.current = true
 			overview_light.visible = true
+	
+	if Input.is_action_just_pressed("sprint"):
+		footstep_audio.pitch_scale = 1.4
+	
+	if Input.is_action_just_released("sprint"):
+		footstep_audio.pitch_scale = 1.0
 
 func _process(delta: float) -> void:
 	var camera_yaw := camera.global_transform.basis.get_euler().y
@@ -98,6 +106,8 @@ func _physics_process(delta: float) -> void:
 	# If no input, apply friction.
 	if input_dir == Vector2.ZERO:
 		current_velocity = current_velocity.lerp(Vector3.ZERO, friction * delta)
+		if footstep_audio.playing:
+			footstep_audio.stop()
 	else:
 		# Calculate desired movement direction and speed.
 		var camera_forward := camera.transform.basis.z.normalized()
@@ -109,6 +119,9 @@ func _physics_process(delta: float) -> void:
 		var direction := (camera_right * input_dir.x + camera_forward * input_dir.y).normalized()
 		current_velocity = direction * move_speed
 		current_velocity = current_velocity.lerp(current_velocity, acceleration * delta)
+		if is_on_floor() and not footstep_audio.playing:
+			#footstep_audio.pitch_scale = randf_range(0.8, 1.2)
+			footstep_audio.play()
 	
 	# Apply the computed velocity.
 	velocity.x = current_velocity.x
@@ -118,6 +131,22 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector3.ZERO
 	
 	move_and_slide()
+	
+	#if is_on_floor() and velocity.length() > 0.1:
+		#if !footstep_audio.playing:
+			#footstep_audio.play()
+		#
+		#var playback_speed: float = 1.0
+		#if move_speed > walk_speed:
+			#playback_speed = 1.5
+		#footstep_audio.pitch_scale = playback_speed
+	#else:
+		#if footstep_audio.playing:
+			#footstep_audio.stop()
+
+func stop_footstep_audio() -> void:
+	footstep_audio.pitch_scale = 1.0
+	footstep_audio.stop()
 
 func restrict_movement() -> void:
 	movement_restricted = true

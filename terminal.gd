@@ -13,9 +13,9 @@ var enigma_success_array: Array[String] = [
 	"I guess that was pretty obvious?",
 	"It's a 1 in 10, you got lucky.",
 	"clever.",
-	"‘Enigma? You'd think the code would put up more of a fight.",
+	"'Enigma'? You'd think the code would put up more of a fight.",
 	"You must feel like a genius.",
-	"Ah, 'Enigma' cracked the code. Originality: zero. Irony: infinite.",
+	"Ah, 'Enigma' ofcourse that worked, it's in the title of the game isn't it?",
 	"Ofcourse you had to try it, and it worked... this time.",
 	"Well this game was easy..."
 ]
@@ -28,7 +28,7 @@ var enigma_fail_array: Array[String] = [
 	"Denied. Guess the password wasnt as self-referential as I thought.",
 	"Nope, not 'Enigma' Its like the game is mocking me for taking the obvious route.",
 	"...Really?",
-	"I bet you though that would work.",
+	"I bet you thought that would work.",
 	"Ironic. The password isnt 'Enigma', and yet it remains... an enigma.",
 	"Not 'Enigma'? Bold move for a game literally called Exit Code Enigma.",
 	"How many responses do you think there are for this?",
@@ -36,7 +36,8 @@ var enigma_fail_array: Array[String] = [
 	"Have you tried some other classics, like 'hunter2' or 'password'?",
 	"Maybe you should try 'opensesame'?",
 	"Maybe you should just ask for it to let you in next time?",
-	"Try 'admin', you are the administrator right?"
+	"Try 'admin', you are the administrator right?",
+	"Shouldn't this work?"
 ]
 
 var silly_password_success_array: Array[String] = [
@@ -151,7 +152,7 @@ var silly_admin_fail_array: Array[String] = [
 	"'admin' didnt work? Wow, even the basics are too good for this system.",
 	"Oh, so 'admin' isnt the key? Fancy system youve got here.",
 	"'admin' rejected. Someone finally read a security handbook.",
-	"Not 'admin'? Guess were dealing with next-level password innovation here.",
+	"Not 'admin'? Guess we're dealing with next-level password innovation here.",
 	"'admin' failed. I'm shocked. Truly shocked.",
 	"No dice with 'admin' Maybe its time to try 'admin1' for extra spice.",
 	"'admin' didnt work. Looks like theyve graduated from the 'default passwords' school of thought.",

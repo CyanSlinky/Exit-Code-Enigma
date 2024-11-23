@@ -7,7 +7,7 @@ class_name Map
 
 @export var cell_size: float = 6.0
 @export var wall_height: float = 6.0
-@export var map_width: int = 40
+@export var map_width: int = 20
 @export var map_height: int = 40
 
 @export var room_probability: float = 0.01
@@ -26,10 +26,12 @@ class_name Map
 @export var shelf_ceiling_light_boost: float = 0.42
 
 @export var sticky_note_scene: PackedScene
-@export var num_sticky_notes: int = 36
+@export var num_sticky_notes: int = 12
 @export var min_distance_between_notes: int = 3
 @export var sticky_note_vertical_range: float = 1.0  # Max vertical offset up/down
 @export var sticky_note_horizontal_range: float = 1.0  # Max horizontal offset left/right
+
+@export var office_manager_scene: PackedScene
 
 var cells: Array[Cell]
 var walls: Array[Cell]
@@ -52,6 +54,7 @@ func update_map() -> void:
 	spawn_shelf()
 	spawn_ceiling_lights()
 	spawn_sticky_notes()
+	spawn_office_manager()
 	map_mesh.map = self
 	map_mesh.update_mesh()
 	update_collider()
@@ -413,3 +416,29 @@ func place_ceiling_light_in_cell(cell: Cell) -> void:
 	#ceiling_light.rotation_degrees = Vector3(0, randf_range(0, 360), 0)  # Random rotation around the y-axis
 	
 	objects.add_child(ceiling_light)
+
+
+func spawn_office_manager() -> void:
+	if office_manager_scene == null:
+		print("Office manager scene is not set.")
+		return
+	
+	# Find a random cell to spawn the office manager
+	var cell: Cell = find_random_empty_cell()
+	if cell == null:
+		print("No suitable cell found for office manager.")
+		return
+	
+	# Instance the office manager scene
+	var office_manager: OfficeManager = office_manager_scene.instantiate()
+	office_manager.map = self
+	
+	# Position the manager at the center of the chosen cell
+	var x: float = cell.pos.x * cell_size
+	var z: float = cell.pos.y * cell_size
+	office_manager.transform.origin = Vector3(x, 0, z)
+	
+	# Add the manager to the map's objects
+	objects.add_child(office_manager)
+	
+	#print("Office manager spawned at:", cell.pos)

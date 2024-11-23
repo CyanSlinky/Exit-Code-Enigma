@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://p26f5fp7po7n"]
+[gd_scene load_steps=10 format=3 uid="uid://p26f5fp7po7n"]
 
 [ext_resource type="Script" path="res://map.gd" id="1_vg6v0"]
 [ext_resource type="Shader" path="res://liminal_office.gdshader" id="2_6dyxt"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://b4308tqbh560r" path="res://clutter_shelf.tscn" id="3_fani7"]
 [ext_resource type="PackedScene" uid="uid://bejxdfigoj13c" path="res://sticky_note.tscn" id="4_5yljo"]
 [ext_resource type="PackedScene" uid="uid://dyr845je3hws3" path="res://ceiling_light.tscn" id="4_wgghb"]
+[ext_resource type="PackedScene" uid="uid://c3w4n7xomnxr2" path="res://office_manager.tscn" id="6_8nu6q"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_w3hnm"]
 render_priority = 0
@@ -44,6 +45,7 @@ exit_scene = ExtResource("2_nv0t8")
 shelf_scene = ExtResource("3_fani7")
 ceiling_light_scene = ExtResource("4_wgghb")
 sticky_note_scene = ExtResource("4_5yljo")
+office_manager_scene = ExtResource("6_8nu6q")
 
 [node name="MapMesh" type="MeshInstance3D" parent="."]
 material_override = SubResource("ShaderMaterial_w3hnm")
