@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://fktrfslier30"]
+[gd_scene load_steps=5 format=3 uid="uid://fktrfslier30"]
 
 [ext_resource type="PackedScene" uid="uid://p26f5fp7po7n" path="res://map.tscn" id="1_yd6n8"]
 [ext_resource type="PackedScene" uid="uid://ehxjun1gtjbc" path="res://player.tscn" id="2_2obq8"]
+[ext_resource type="Script" path="res://ambient_liminal.gd" id="3_mxfd0"]
 
 [sub_resource type="Environment" id="Environment_nbbfy"]
 background_mode = 1
@@ -24,3 +25,8 @@ environment = SubResource("Environment_nbbfy")
 [node name="Map" parent="." instance=ExtResource("1_yd6n8")]
 
 [node name="Player" parent="." instance=ExtResource("2_2obq8")]
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+volume_db = -15.0
+bus = &"Ambience"
+script = ExtResource("3_mxfd0")

@@ -12,9 +12,24 @@ var enigma_outcome: int
 var silly_result: bool
 var used_silly: bool
 
+var xray: bool : 
+	set (value):
+		xray = value
+		if map:
+			exit.exit_sign.material_override.set("no_depth_test", value)
+			var char_mat: Material = office_manager.character.get_surface_override_material(0).get_next_pass()
+			char_mat.set("no_depth_test", value)
+			#var tie_mat: Material = office_manager.tie.get_surface_override_material(0)
+			#tie_mat.set("no_depth_test", value)
+			#tie_mat.set("shading_mode", value)
+			if map.sticky_notes.size() > 0:
+				for sn in map.sticky_notes:
+					sn.mesh_instance.material_override.set("no_depth_test", value)
+
 var map: Map
 var exit: Exit
 var player: Player
+var office_manager: OfficeManager
 
 func _ready() -> void:
 	await GUI.ready
@@ -22,6 +37,7 @@ func _ready() -> void:
 
 func start_game() -> void:
 	#print("start")
+	xray = false
 	GUI.pause_screen.visible = false
 	get_tree().paused = false
 	randomize()

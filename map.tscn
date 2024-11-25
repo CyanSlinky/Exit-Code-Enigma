@@ -13,7 +13,6 @@
 render_priority = 0
 shader = ExtResource("2_6dyxt")
 shader_parameter/wall_color = Color(0.501961, 0.627451, 0.627451, 1)
-shader_parameter/exposed_wall_color = Color(0.434839, 0.556901, 0.557002, 1)
 shader_parameter/thick_line_color = Color(0, 0.501961, 0.501961, 1)
 shader_parameter/thin_line_color = Color(0.501961, 0.235294, 0, 1)
 shader_parameter/ceiling_color = Color(0.384285, 0.500269, 0.500421, 1)

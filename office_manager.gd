@@ -3,6 +3,9 @@ class_name OfficeManager
 
 @onready var armature: Node3D = $Armature
 @onready var animator: AnimationPlayer = $AnimationPlayer
+@onready var character: MeshInstance3D = $Armature/Skeleton3D/Character
+@onready var tie: MeshInstance3D = $Armature/Skeleton3D/Tie
+@onready var map_indicator: MeshInstance3D = $MapIndicator
 
 @export var speed: float = 2.0
 @export var min_stop_duration: float = 2.0  # Minimum stop duration (in secs)
@@ -12,6 +15,15 @@ class_name OfficeManager
 @export var exploration_chance: float = 0.1  # Chance to force exploration
 @export var additional_oscillation_penalty: int = 5  # Extra penalty for oscillation
 @export var max_recent_path_length: int = 10  # Maximum recent path history
+
+enum ManagerType {
+	EVIL,
+	GOOD,
+	AMBIVALENT
+}
+
+var manager_type: ManagerType
+var manager_color: Color
 
 var map: Map
 var current_target: Vector3 = Vector3.ZERO
@@ -24,11 +36,31 @@ var cell_penalty_tracker: Dictionary = {}  # Tracks penalty scores for cells
 var recent_path: Array[Vector2i] = []  # Tracks the recent path history
 
 func _ready() -> void:
+	GameData.office_manager = self
+	randomize()
+	initialize_manager_type()
 	# Initialize the current cell based on the manager's starting position
 	current_cell = map_position_to_cell(position)
 	previous_cell = current_cell
 	update_cell_penalty(current_cell)
 	choose_new_target()
+
+func initialize_manager_type() -> void:
+	manager_type = ManagerType.values().pick_random()
+	var char_mat: Material = character.get_surface_override_material(0).get_next_pass()
+	var tie_mat: Material = tie.get_surface_override_material(0)
+	var map_mat: Material = map_indicator.material_override
+	match manager_type:
+		ManagerType.EVIL:
+			manager_color = Color.RED
+		ManagerType.GOOD:
+			manager_color = Color.DEEP_SKY_BLUE
+		ManagerType.AMBIVALENT:
+			manager_color = Color.LIGHT_SLATE_GRAY
+	
+	char_mat.set("albedo_color", manager_color)
+	tie_mat.set("albedo_color", manager_color)
+	map_mat.set("albedo_color", manager_color)
 
 func _physics_process(delta: float) -> void:
 	if is_stopping:
@@ -154,3 +186,22 @@ func update_recent_path(cell: Vector2i) -> void:
 	recent_path.append(cell)
 	if recent_path.size() > max_recent_path_length:
 		recent_path.pop_front()
+
+func _on_interactable_interaction_occurred() -> void:
+	match manager_type:
+		ManagerType.EVIL:
+			GUI.display_notification("What happened?")
+			GameData.start_game() # restarts the game.
+		ManagerType.GOOD:
+			GUI.display_notification("The exit code is: " + GameData.exit_code)
+			for i in GameData.exit_code.length():
+				GUI.update_character(i + 1, GameData.exit_code[i])
+		ManagerType.AMBIVALENT:
+			var choice: int = randi_range(0, 1)
+			if choice == 0:
+				GUI.display_notification("What happened?")
+				GameData.start_game() # restarts the game.
+			else:
+				GUI.display_notification("The exit code is: " + GameData.exit_code)
+				for i in GameData.exit_code.length():
+					GUI.update_character(i + 1, GameData.exit_code[i])

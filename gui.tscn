@@ -1,7 +1,8 @@
-[gd_scene load_steps=23 format=3 uid="uid://nm5yj7ykmvcd"]
+[gd_scene load_steps=25 format=3 uid="uid://nm5yj7ykmvcd"]
 
 [ext_resource type="Script" path="res://gui.gd" id="1_wyhwq"]
 [ext_resource type="FontFile" uid="uid://ckc72m5mswmg6" path="res://kroe0555.ttf" id="2_mwt7a"]
+[ext_resource type="Script" path="res://volume_slider.gd" id="3_escg1"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8sxum"]
 
@@ -65,6 +66,9 @@ bg_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vhx2l"]
 
+[sub_resource type="LabelSettings" id="LabelSettings_bsjsb"]
+font = ExtResource("2_mwt7a")
+
 [node name="GUI" type="Control"]
 process_mode = 3
 layout_mode = 3
@@ -77,6 +81,7 @@ mouse_filter = 2
 script = ExtResource("1_wyhwq")
 
 [node name="GameScreen" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -344,7 +349,6 @@ theme_override_styles/separator = SubResource("StyleBoxEmpty_ld2f4")
 
 [node name="PauseScreen" type="Control" parent="."]
 process_mode = 3
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -396,6 +400,23 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_j752e")
 theme_override_styles/normal = SubResource("StyleBoxFlat_j752e")
 action_mode = 0
 text = "RESTART"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PauseScreen/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PauseScreen/HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Volume"
+label_settings = SubResource("LabelSettings_bsjsb")
+uppercase = true
+
+[node name="VolumeSlider" type="HSlider" parent="PauseScreen/HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.001
+script = ExtResource("3_escg1")
+bus_name = "Master"
 
 [node name="HSeparator2" type="HSeparator" parent="PauseScreen/HBoxContainer/VBoxContainer"]
 layout_mode = 2

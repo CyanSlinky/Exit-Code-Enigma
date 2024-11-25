@@ -4,6 +4,11 @@ class_name CeilingLight
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 @onready var light: OmniLight3D = $Light
 
+@export var flicker_distance: float = 50.0  # Distance within which flashlight starts flickering
+@export var off_distance: float = 20.0  # Distance within which flashlight turns off
+
+var flicker_timer := Timer.new()
+
 const max_active_lights: int = 7
 static var active_lights: Array = []
 
@@ -11,6 +16,29 @@ var player: Node3D
 
 func _ready() -> void:
 	player = get_tree().get_nodes_in_group("Player")[0]
+	
+	add_child(flicker_timer)
+	flicker_timer.wait_time = randf_range(0.05, 0.15)
+	flicker_timer.autostart = false
+	flicker_timer.connect("timeout", _on_flicker_timer_timeout)
+
+func _process(_delta: float) -> void:
+	var dist: float = global_transform.origin.distance_to(GameData.office_manager.global_transform.origin)
+	if light.visible:
+		if dist < off_distance:
+			flicker_timer.stop()
+			deactivate_light()
+			light.light_energy = 0
+		elif dist < flicker_distance:
+			if flicker_timer.is_stopped():
+				flicker_timer.start()
+		else:
+			flicker_timer.stop()
+			light.light_energy = 1
+
+func _on_flicker_timer_timeout() -> void:
+	flicker_timer.wait_time = randf_range(0.05, 0.15)
+	light.light_energy = randf_range(0.8, 1.2)
 
 func attempt_activation() -> void:
 	if self not in active_lights and active_lights.size() < max_active_lights:

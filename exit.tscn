@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://dhp8lm7pdbnw1"]
+[gd_scene load_steps=24 format=3 uid="uid://dhp8lm7pdbnw1"]
 
 [ext_resource type="Material" uid="uid://bjbqjsqn2wjgd" path="res://exit_frame_material.tres" id="1_qti4r"]
 [ext_resource type="Script" path="res://exit.gd" id="1_yxhgq"]
@@ -17,6 +17,15 @@ shading_mode = 0
 
 [sub_resource type="BoxMesh" id="BoxMesh_aqsb4"]
 size = Vector3(2, 3, 2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_075po"]
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(0, 0.501961, 0, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_buw0g"]
+flip_faces = true
+size = Vector2(0.9, 0.3)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_apnvd"]
 size = Vector3(2, 3, 0.5)
@@ -80,11 +89,17 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 0.5)
 material_override = ExtResource("1_qti4r")
 mesh = ExtResource("2_c1j5s")
 
-[node name="Label3D" type="Label3D" parent="."]
+[node name="ExitSign" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.25, 0.035)
+material_override = SubResource("StandardMaterial3D_075po")
+mesh = SubResource("QuadMesh_buw0g")
+
+[node name="ExitLabel" type="Label3D" parent="."]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 3.26, 0.02)
+outline_modulate = Color(0, 0.705882, 0, 1)
 text = "EXIT"
 font_size = 64
-outline_size = 0
+outline_size = 2
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.26, 0.02)

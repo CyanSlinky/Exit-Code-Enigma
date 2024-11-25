@@ -18,12 +18,17 @@ class_name Player
 @export var friction: float = 10.0
 @export var jump_velocity: float = 4.5
 
+@export var flicker_distance: float = 50.0  # Distance within which flashlight starts flickering
+@export var off_distance: float = 20.0  # Distance within which flashlight turns off
+
 @export var normal_fov: float = 75.0
 @export var sprint_fov: float = 80.0
 @export var shake_intensity: float = 0.1
 
 var movement_restricted: bool
 var flashlight_was_visible: bool
+
+var flicker_timer := Timer.new()  # Timer for controlling flashlight flicker frequency
 
 var move_speed: float
 var target_speed: float
@@ -35,6 +40,15 @@ func _ready() -> void:
 	overview_light.visible = false
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	move_speed = walk_speed
+	
+	add_child(flicker_timer)
+	flicker_timer.wait_time = randf_range(0.05, 0.15)
+	flicker_timer.autostart = false
+	flicker_timer.connect("timeout", _on_flicker_timer_timeout)
+
+func _on_flicker_timer_timeout() -> void:
+	flicker_timer.wait_time = randf_range(0.05, 0.15)
+	flashlight.light_energy = randf_range(0.8, 1.2)
 
 func _unhandled_input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("interact") and interact_ray.is_colliding() and camera.current:
@@ -86,6 +100,18 @@ func _process(delta: float) -> void:
 	elif move_speed > target_speed:
 		move_speed = lerp(move_speed, target_speed, deceleration * delta)
 	
+	var dist: float = global_transform.origin.distance_to(GameData.office_manager.global_transform.origin)
+	if flashlight.visible:
+		if dist < off_distance:
+			flicker_timer.stop()
+			flashlight.light_energy = 0
+		elif dist < flicker_distance:
+			if flicker_timer.is_stopped():
+				flicker_timer.start()
+		else:
+			flicker_timer.stop()
+			flashlight.light_energy = 1
+	
 	#var current_speed := current_velocity.length()
 	#var max_speed := sprint_speed
 	#var speed_ratio := current_speed / max_speed
@@ -119,7 +145,7 @@ func _physics_process(delta: float) -> void:
 		var direction := (camera_right * input_dir.x + camera_forward * input_dir.y).normalized()
 		current_velocity = direction * move_speed
 		current_velocity = current_velocity.lerp(current_velocity, acceleration * delta)
-		if is_on_floor() and not footstep_audio.playing:
+		if is_on_floor() and not footstep_audio.playing and not GameData.exit.using_terminal:
 			#footstep_audio.pitch_scale = randf_range(0.8, 1.2)
 			footstep_audio.play()
 	

@@ -175,12 +175,35 @@ var generic_fail_array: Array[String] = [
 	"why would you type '%s'???",
 	"try '%s', I'm sure it'll work.",
 	"maybe try some pop-culture passwords?",
+]
+
+var hint_array: Array[String] = [
 	"try 'letmein'",
 	"try 'admin'",
 	"try 'password'",
 	"try 'opensesame'",
 	"try 'hunter2'",
-	"try 'enigma', you know like in the title of the game?"
+	"try 'enigma', you know like in the title of the game?",
+	"what if you had a map?",
+	"sure would be useful if you had xray vision or something.",
+	"I wonder if there are some hidden codes?",
+	"is it possible to teleport?",
+	"there's a manager roaming around?"
+]
+
+var exit_open_array: Array[String] = [
+	"it's already open... leave.",
+	"Exit is open.",
+	"You're free to leave.",
+	"Make like a tree and leave.",
+	"It's open, but thanks for double-checking!",
+	"Congratulations! You’ve unlocked the unlocked!",
+	"Open sesame... oh, wait, it’s already sesame'd.",
+	"Access granted... but wasn't it already?",
+	"Why try to unlock the freedom you already have?",
+	"System override not needed, door's open, friend!",
+	"The system approves your redundant efforts.",
+	"Pro tip: Open things don’t need opening."
 ]
 
 func _ready() -> void:
@@ -205,8 +228,48 @@ func _on_code_entry_field_text_changed(new_text: String) -> void:
 	code_entry_field.caret_column = caret_pos
 
 func _on_code_entry_field_text_submitted(new_text: String) -> void:
+	if new_text == "XRAY":
+		GameData.xray = !GameData.xray
+		var xray_string: String
+		if GameData.xray:
+			xray_string = "Enabled"
+		else:
+			xray_string = "Disabled"
+		code_result_label.text = "x-ray " + xray_string
+		code_entry_field.clear()
+		return
+	if new_text == "TELEPORT":
+		if GameData.exit.using_terminal:
+			GameData.exit.toggle_terminal_usage()
+		var cell_size: float = GameData.map.cell_size
+		var cell_pos: Vector2i = GameData.map.find_random_empty_cell().pos * cell_size
+		var teleport_pos: Vector3 = Vector3(cell_pos.x, 0.0, cell_pos.y)
+		GameData.player.global_position = teleport_pos
+		code_result_label.text = "you got teleported"
+		code_entry_field.deselect()
+		code_entry_field.release_focus()
+		code_entry_field.clear()
+		return
+	if new_text == "MAP":
+		code_result_label.text = "a map? there might be [o]ne"
+		code_entry_field.clear()
+		return
+	if new_text == "HINT" or new_text == "HELP" or new_text == "TIP" or new_text == "CHEAT" or new_text == "CHEATS" or new_text == "CODE" or new_text == "HIDDEN" or new_text == "SECRET" or new_text == "SECRETS":
+		var hint_text: String = hint_array[randi_range(0, hint_array.size() - 1)]
+		code_result_label.text = hint_text
+		return
+	if new_text == "MANAGER":
+		match GameData.office_manager.manager_type:
+			OfficeManager.ManagerType.EVIL:
+				code_result_label.text = "the manager is evil."
+			OfficeManager.ManagerType.GOOD:
+				code_result_label.text = "the manager is good."
+			OfficeManager.ManagerType.AMBIVALENT:
+				code_result_label.text = "the manager is ambivalent, who knows what he'll do."
+		return
 	if GameData.exit.is_open:
-		code_result_label.text = "it's already open... leave."
+		var exit_open_text: String = exit_open_array[randi_range(0, exit_open_array.size() - 1)]
+		code_result_label.text = exit_open_text
 	else:
 		if new_text == GameData.exit_code or new_text == "DEVPASS":
 			code_result_label.text = "exit opened."
@@ -265,9 +328,11 @@ func _on_code_entry_field_text_submitted(new_text: String) -> void:
 				var admin_fail_text: String = silly_admin_fail_array[randi_range(0, silly_admin_fail_array.size() - 1)]
 				code_result_label.text = admin_fail_text
 		else:
-			var generic_fail_text: String = generic_fail_array[randi_range(0, generic_fail_array.size() - 1)]
+			var fail_array: Array[String] = generic_fail_array + hint_array
+			var generic_fail_text: String = fail_array[randi_range(0, fail_array.size() - 1)]
 			if "%s" in generic_fail_text:
 				var formatted_text: String = generic_fail_text % new_text
 				code_result_label.text = formatted_text
 			else:
 				code_result_label.text = generic_fail_text
+	code_entry_field.clear()

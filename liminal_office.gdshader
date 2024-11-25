@@ -2,7 +2,7 @@ shader_type spatial;
 
 // Colors for walls, lines, floor, ceiling, and exposed wall layer
 uniform vec4 wall_color : source_color = vec4(0.9, 0.9, 0.9, 1.0); // Base wall color
-uniform vec4 exposed_wall_color : source_color = vec4(0.5, 0.3, 0.2, 1.0); // Color of the exposed layer
+//uniform vec4 exposed_wall_color : source_color = vec4(0.5, 0.3, 0.2, 1.0); // Color of the exposed layer
 uniform vec4 thick_line_color : source_color = vec4(0.0, 1.0, 1.0, 1.0); // Thicker line color
 uniform vec4 thin_line_color : source_color = vec4(0.0, 0.5, 0.5, 1.0); // Thinner line color
 uniform vec4 ceiling_color : source_color = vec4(0.9, 0.9, 0.9, 1.0); // Ceiling color
@@ -186,7 +186,7 @@ void fragment() {
 	
 	// Set base color with additionasl noise for intact wall sections
 	if (is_exposed) {
-		ALBEDO = exposed_wall_color.rgb + (detail * 0.55);
+		ALBEDO = (wall_color.rgb * 0.85) + (detail * 0.55);
 		ROUGHNESS = wall_roughness + detail;
 		SPECULAR = wall_specular + detail;
 	} else {

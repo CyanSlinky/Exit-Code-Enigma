@@ -14,6 +14,77 @@ var vertex_count: int
 var collision_vertices: PackedVector3Array = PackedVector3Array()
 var collision_indices: PackedInt32Array = PackedInt32Array()
 
+var wall_color: Color
+var ceiling_color: Color
+var accent1_color: Color
+var accent2_color: Color
+
+func generate_color(t: float, a: float, b: float, c: float, d: float) -> float:
+	return clamp((sin(t * a + b) + sin(t * c + d) + 1.0) * 0.5, 0.0, 1.0)
+
+func create_palette() -> Array:
+	var palette: Array = []
+	var t: float = randf() * 2.0 * PI  # Start with a random phase
+	
+	# Random parameters for each color channel
+	var ar: float = randf_range(0.1, 2.0)
+	var br: float = randf_range(0, 2 * PI)
+	var cr: float = randf_range(0.1, 2.0)
+	var dr: float = randf_range(0, 2 * PI)
+	
+	var ag: float = randf_range(0.1, 2.0)
+	var bg: float = randf_range(0, 2 * PI)
+	var cg: float = randf_range(0.1, 2.0)
+	var dg: float = randf_range(0, 2 * PI)
+	
+	var ab: float = randf_range(0.1, 2.0)
+	var bb: float = randf_range(0, 2 * PI)
+	var cb: float = randf_range(0.1, 2.0)
+	var db: float = randf_range(0, 2 * PI)
+	
+	# Generate n colors
+	for i in range(4):
+		var red: float = generate_color(t + i * deg_to_rad(90), ar, br, cr, dr)
+		var green: float = generate_color(t + i * deg_to_rad(90), ag, bg, cg, dg)
+		var blue: float = generate_color(t + i * deg_to_rad(90), ab, bb, cb, db)
+		palette.append(Color(red, green, blue))
+	
+	return palette
+
+func adjust_color(color: Color, desaturation_level: float, min_value: float, max_value: float) -> Color:
+	var h: float = color.h
+	var s: float = color.s * desaturation_level  # Reduce the saturation
+	var v: float = color.v  # Get the current value
+
+	# Normalize the brightness to ensure it's neither too dark nor too bright
+	v = clamp(v, min_value, max_value)
+
+	return Color.from_hsv(h, s, v)
+
+func update_color() -> void:
+	var palette: Array = create_palette()
+	wall_color = adjust_color(palette[0], 0.2, 0.4, 0.5) # Adjust to ensure brightness is moderate
+	ceiling_color = adjust_color(palette[1], 0.2, 0.4, 0.5)
+	accent1_color = adjust_color(palette[2], 0.6, 0.55, 0.65)
+	accent2_color = adjust_color(palette[3], 0.6, 0.55, 0.65)
+	
+	material_override.set("shader_parameter/wall_color", wall_color)
+	material_override.set("shader_parameter/ceiling_color", ceiling_color)
+	material_override.set("shader_parameter/thick_line_color", accent1_color)
+	material_override.set("shader_parameter/thin_line_color", accent2_color)
+	
+	randomize()
+	var floor_palette: Array = create_palette()
+	var floor_color: Color = adjust_color(floor_palette[0], 0.1, 0.3, 0.4)
+	var floor_color1: Color = adjust_color(floor_palette[1], 0.2, 0.4, 0.5)
+	var floor_color2: Color = adjust_color(floor_palette[2], 0.2, 0.4, 0.5)
+	var floor_color3: Color = adjust_color(floor_palette[3], 0.2, 0.4, 0.5)
+	
+	material_override.set("shader_parameter/floor_color", floor_color)
+	material_override.set("shader_parameter/floor_color1", floor_color1)
+	material_override.set("shader_parameter/floor_color2", floor_color2)
+	material_override.set("shader_parameter/floor_color3", floor_color3)
+
 func update_mesh() -> void:
 	if map == null:
 		return

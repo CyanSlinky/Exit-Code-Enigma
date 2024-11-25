@@ -11,6 +11,7 @@ class_name Exit
 @onready var terminal_viewport: Terminal = $Terminal
 @onready var monitor_area: Area3D = $ExitTerminal/MonitorArea
 @onready var monitor_quad: MeshInstance3D = $ExitTerminal/MonitorArea/MonitorQuad
+@onready var exit_sign: MeshInstance3D = $ExitSign
 
 # Used for checking if the mouse is inside the Area3D.
 var is_mouse_inside: bool = false

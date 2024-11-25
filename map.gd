@@ -40,6 +40,8 @@ var exit_cells: Dictionary
 var shelf_cells: Dictionary
 var used_clues: Dictionary
 
+var sticky_notes: Array[StickyNote]
+
 const DIRECTIONS: Array[Vector2i] = [
 	Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 
@@ -47,6 +49,7 @@ func _ready() -> void:
 	update_map()
 
 func update_map() -> void:
+	sticky_notes.clear()
 	GameData.map = self
 	clear_objects()
 	generate_map()
@@ -56,6 +59,7 @@ func update_map() -> void:
 	spawn_sticky_notes()
 	spawn_office_manager()
 	map_mesh.map = self
+	map_mesh.update_color()
 	map_mesh.update_mesh()
 	update_collider()
 
@@ -332,6 +336,22 @@ func find_random_empty_cell() -> Cell:
 	# Fallback to any random cell if all else fails
 	return cells[randi() % cells.size()]
 
+func find_random_cell_far_from_center(dist: float) -> Cell:
+	var attempts: int = 100  # Limit attempts to avoid infinite loop
+	var center: Vector2i = Vector2i(0, 0)  # Map center
+	
+	while attempts > 0:
+		var cell: Cell = cells[randi() % cells.size()]
+		
+		# Calculate the distance from the center
+		if cell.pos.distance_to(center) >= dist:
+			return cell
+		
+		attempts -= 1
+	
+	print("Could not find a cell far enough from the center.")
+	return null
+
 func place_sticky_note_in_cell(cell: Cell) -> void:
 	var wall_direction: Vector2i = get_free_wall_direction(cell)
 	if wall_direction == Vector2i.ZERO:
@@ -361,6 +381,7 @@ func place_sticky_note_in_cell(cell: Cell) -> void:
 	sticky_note.transform.origin = sticky_note_position
 	sticky_note.rotation_degrees = sticky_note_rotation
 	objects.add_child(sticky_note)
+	sticky_notes.append(sticky_note)
 
 func get_free_wall_direction(cell: Cell) -> Vector2i:
 	for direction in DIRECTIONS:
@@ -424,10 +445,10 @@ func spawn_office_manager() -> void:
 		return
 	
 	# Find a random cell to spawn the office manager
-	var cell: Cell = find_random_empty_cell()
+	var cell: Cell = find_random_cell_far_from_center(15.0)
 	if cell == null:
-		print("No suitable cell found for office manager.")
-		return
+		print("No suitable cell found for office manager, placing randomly.")
+		cell = find_random_empty_cell()
 	
 	# Instance the office manager scene
 	var office_manager: OfficeManager = office_manager_scene.instantiate()
