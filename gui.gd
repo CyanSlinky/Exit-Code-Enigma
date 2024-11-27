@@ -15,6 +15,9 @@ extends Control
 @onready var notification_timer: Timer = $GameScreen/HBoxContainer2/VBoxContainer/NotificationLabel/NotificationTimer
 @onready var game_timer: Timer = $GameScreen/HBoxContainer/VBoxContainer/GameTimeElapsedLabel/GameTimer
 
+@onready var flashlight_label: Label = $GameScreen/HBoxContainer/VBoxContainer2/FlashlightLabel
+@onready var flashlight_bar: ProgressBar = $GameScreen/HBoxContainer/VBoxContainer2/FlashlightBar
+
 @onready var pass_character_1: Label = $GameScreen/HBoxContainer/VBoxContainer/HBoxContainer/PassCharacter1
 @onready var pass_character_2: Label = $GameScreen/HBoxContainer/VBoxContainer/HBoxContainer/PassCharacter2
 @onready var pass_character_3: Label = $GameScreen/HBoxContainer/VBoxContainer/HBoxContainer/PassCharacter3
@@ -109,6 +112,10 @@ func update_character(index: int, character: String) -> void:
 			pass_character_5.text = character
 		6:
 			pass_character_6.text = character
+
+func update_flashlight_charge(charge: float, max_charge: float) -> void:
+	flashlight_bar.max_value = max_charge
+	flashlight_bar.value = charge
 
 func _on_game_timer_timeout() -> void:
 	GameData.elapsed_time += 1

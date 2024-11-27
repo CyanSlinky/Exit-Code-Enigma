@@ -16,6 +16,7 @@ albedo_color = Color(0, 1, 0, 1)
 size = Vector3(5, 5, 1)
 
 [node name="Player" type="CharacterBody3D" groups=["Player"]]
+collision_mask = 9
 script = ExtResource("1_ljjms")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -41,10 +42,9 @@ script = ExtResource("2_q32wd")
 
 [node name="InteractRay" type="RayCast3D" parent="Camera3D"]
 target_position = Vector3(0, 0, -3)
-collision_mask = 2
+collision_mask = 10
 hit_back_faces = false
 collide_with_areas = true
-collide_with_bodies = false
 
 [node name="Flashlight" type="SpotLight3D" parent="Camera3D"]
 spot_range = 20.0

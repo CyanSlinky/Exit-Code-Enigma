@@ -54,7 +54,7 @@ func _mouse_input_event(_camera: Camera3D, event: InputEvent, event_position: Ve
 	# Convert position to a coordinate space relative to the Area3D node.
 	# NOTE: affine_inverse accounts for the Area3D node's scale, rotation, and position in the scene!
 	event_pos3D = monitor_quad.global_transform.affine_inverse() * event_pos3D
-	event_pos3D *= -1 # had to invert it for some reason.
+	event_pos3D.x *= -1 # had to invert it for some reason.
 
 	# TODO: Adapt to bilboard mode or avoid completely.
 
@@ -104,7 +104,8 @@ func _mouse_input_event(_camera: Camera3D, event: InputEvent, event_position: Ve
 	last_event_time = now
 	
 	# Finally, send the processed input event to the viewport.
-	terminal_viewport.push_input(event)
+	if using_terminal:
+		terminal_viewport.push_input(event)
 
 func update_terminal_texture() -> void:
 	var mat := exit_terminal.get_surface_override_material(1)
@@ -122,7 +123,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			# If the event is a mouse/touch event, then we can ignore it here, because it will be
 			# handled via Physics Picking.
 			return
-	terminal_viewport.push_input(event)
+	if using_terminal:
+		terminal_viewport.push_input(event)
 
 func open_exit() -> void:
 	if is_open:
@@ -164,6 +166,7 @@ func toggle_terminal_usage() -> void:
 		terminal_light.visible = true
 		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		#terminal_viewport.code_entry_field.grab_focus()
 		#terminal.show_terminal_view()
 	else:
 		was_using_terminal = true
@@ -173,6 +176,7 @@ func toggle_terminal_usage() -> void:
 		terminal_light.visible = false
 		if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		terminal_viewport.code_entry_field.release_focus()
 		#terminal.hide_terminal_view()
 
 func _on_interactable_interaction_occurred() -> void:

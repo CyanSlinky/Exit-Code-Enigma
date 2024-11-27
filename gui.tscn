@@ -1,6 +1,7 @@
-[gd_scene load_steps=25 format=3 uid="uid://nm5yj7ykmvcd"]
+[gd_scene load_steps=28 format=3 uid="uid://nm5yj7ykmvcd"]
 
 [ext_resource type="Script" path="res://gui.gd" id="1_wyhwq"]
+[ext_resource type="Shader" path="res://circle.gdshader" id="2_iwsed"]
 [ext_resource type="FontFile" uid="uid://ckc72m5mswmg6" path="res://kroe0555.ttf" id="2_mwt7a"]
 [ext_resource type="Script" path="res://volume_slider.gd" id="3_escg1"]
 
@@ -24,6 +25,8 @@ font_size = 46
 outline_size = 5
 outline_color = Color(0, 0, 0, 1)
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4m64l"]
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4a28r"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_i0lyv"]
@@ -39,6 +42,10 @@ outline_color = Color(0, 0, 0, 1)
 font_size = 26
 outline_size = 5
 outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_yjkpk"]
+shader = ExtResource("2_iwsed")
+shader_parameter/circleRadius = 0.1
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ld2f4"]
 
@@ -81,7 +88,6 @@ mouse_filter = 2
 script = ExtResource("1_wyhwq")
 
 [node name="GameScreen" type="Control" parent="."]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -189,6 +195,24 @@ theme_override_styles/separator = SubResource("StyleBoxEmpty_vobmc")
 layout_mode = 2
 text = "000 FPS"
 label_settings = SubResource("LabelSettings_7yv2d")
+horizontal_alignment = 2
+
+[node name="HSeparator2" type="HSeparator" parent="GameScreen/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/separator = SubResource("StyleBoxEmpty_4m64l")
+
+[node name="FlashlightLabel" type="Label" parent="GameScreen/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+text = "Flashlight ON [F]"
+
+[node name="FlashlightBar" type="ProgressBar" parent="GameScreen/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="HSeparator3" type="HSeparator" parent="GameScreen/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+theme_override_constants/separation = 10
+theme_override_styles/separator = SubResource("StyleBoxEmpty_4m64l")
 
 [node name="VSeparator3" type="VSeparator" parent="GameScreen/HBoxContainer"]
 layout_mode = 2
@@ -214,8 +238,8 @@ theme_override_styles/separator = SubResource("StyleBoxEmpty_i0lyv")
 layout_mode = 2
 
 [node name="HSeparator" type="HSeparator" parent="GameScreen/HBoxContainer2/VBoxContainer"]
+custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
-size_flags_vertical = 3
 size_flags_stretch_ratio = 0.2
 mouse_filter = 2
 theme_override_styles/separator = SubResource("StyleBoxEmpty_l33ud")
@@ -247,8 +271,8 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="HSeparator3" type="HSeparator" parent="GameScreen/HBoxContainer2/VBoxContainer"]
+custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
-size_flags_vertical = 3
 size_flags_stretch_ratio = 0.2
 mouse_filter = 2
 theme_override_styles/separator = SubResource("StyleBoxEmpty_l33ud")
@@ -258,6 +282,36 @@ layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_styles/separator = SubResource("StyleBoxEmpty_i0lyv")
+
+[node name="CenterContainer" type="CenterContainer" parent="GameScreen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Control" type="Control" parent="GameScreen/CenterContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ColorRect" type="ColorRect" parent="GameScreen/CenterContainer/Control"]
+material = SubResource("ShaderMaterial_yjkpk")
+custom_minimum_size = Vector2(8, 8)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -4.0
+offset_top = -4.0
+offset_right = 4.0
+offset_bottom = 4.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="WinScreen" type="Control" parent="."]
 visible = false
@@ -349,6 +403,7 @@ theme_override_styles/separator = SubResource("StyleBoxEmpty_ld2f4")
 
 [node name="PauseScreen" type="Control" parent="."]
 process_mode = 3
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

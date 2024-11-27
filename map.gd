@@ -252,7 +252,7 @@ func place_shelf_in_cell(cell: Cell) -> void:
 	if wall_direction == Vector2i.ZERO:
 		return  # No valid wall to place shelf
 	
-	var shelf: Node3D = shelf_scene.instantiate() as Node3D
+	var shelf: Shelf = shelf_scene.instantiate() as Shelf
 	var shelf_position: Vector3 = get_wall_position(cell, wall_direction)
 	var shelf_rotation: Vector3 = get_wall_rotation(wall_direction)
 	
@@ -267,6 +267,9 @@ func place_shelf_in_cell(cell: Cell) -> void:
 			offset = Vector3(shelf_offset, 0, 0)
 		Vector2i.RIGHT:
 			offset = Vector3(-shelf_offset, 0, 0)
+	
+	var neighbor_pos: Vector2i = cell.pos + wall_direction
+	shelf.cell_pos = neighbor_pos
 	
 	shelf.transform.origin = shelf_position + offset
 	shelf.rotation_degrees = shelf_rotation
@@ -377,6 +380,10 @@ func place_sticky_note_in_cell(cell: Cell) -> void:
 			sticky_note_position.x += horizontal_offset  # Offset along X axis for front/back walls
 		Vector2i.LEFT, Vector2i.RIGHT:
 			sticky_note_position.z += horizontal_offset  # Offset along Z axis for side walls
+	
+	var neighbor_pos: Vector2i = cell.pos + wall_direction
+	# Assign the neighboring cell position to the sticky note
+	sticky_note.cell_pos = neighbor_pos
 	
 	sticky_note.transform.origin = sticky_note_position
 	sticky_note.rotation_degrees = sticky_note_rotation

@@ -228,6 +228,26 @@ func _on_code_entry_field_text_changed(new_text: String) -> void:
 	code_entry_field.caret_column = caret_pos
 
 func _on_code_entry_field_text_submitted(new_text: String) -> void:
+	if new_text == "CHARGED" or new_text == "CHARGE" or new_text == "FLASHLIGHT" or new_text == "BATTERY" or new_text == "SUN" or new_text == "SUNSHINE":
+		GameData.player.unlimited_flashlight = !GameData.player.unlimited_flashlight
+		var flashlight_string: String
+		if GameData.player.unlimited_flashlight:
+			flashlight_string = "Enabled"
+		else:
+			flashlight_string = "Disabled"
+		code_result_label.text = "unlimited flashlight " + flashlight_string
+		code_entry_field.clear()
+		return
+	if new_text == "INFINIMINER" or new_text == "MINECRAFT" or new_text == "TERRARIA" or new_text == "MINE" or new_text == "MINER" or new_text == "VOID" or new_text == "INFINITEVOID" or new_text == "WALL":
+		GameData.player.infinite_voiding = !GameData.player.infinite_voiding
+		var void_string: String
+		if GameData.player.infinite_voiding:
+			void_string = "Enabled"
+		else:
+			void_string = "Disabled"
+		code_result_label.text = "infinite wall voiding " + void_string
+		code_entry_field.clear()
+		return
 	if new_text == "XRAY":
 		GameData.xray = !GameData.xray
 		var xray_string: String

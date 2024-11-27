@@ -18,6 +18,10 @@ class_name Player
 @export var friction: float = 10.0
 @export var jump_velocity: float = 4.5
 
+@export var flashlight_max_charge: float = 100.0  # Maximum charge
+@export var flashlight_drain_rate: float = 1.0   # Charge drained per second when on
+@export var flashlight_recharge_amount: float = 25.0  # Amount restored by each battery
+
 @export var flicker_distance: float = 50.0  # Distance within which flashlight starts flickering
 @export var off_distance: float = 20.0  # Distance within which flashlight turns off
 
@@ -25,10 +29,37 @@ class_name Player
 @export var sprint_fov: float = 80.0
 @export var shake_intensity: float = 0.1
 
+const VOID_WALL = preload("res://void_wall.tscn")
+
+var infinite_voiding: bool
+var void_uses: int
 var movement_restricted: bool
+
+var unlimited_flashlight: bool :
+	set(value):
+		unlimited_flashlight = value
+		if value:
+			flashlight_charge = 100.0
+
 var flashlight_was_visible: bool
 
 var flicker_timer := Timer.new()  # Timer for controlling flashlight flicker frequency
+
+var flashlight_charge: float = 100.0 :  # Current charge level
+	set(value):
+		flashlight_charge = value
+		flashlight_charge = min(flashlight_charge, flashlight_max_charge)
+	
+var flashlight_on: bool = true : # Whether the flashlight is currently on
+	set(value):
+		var status_text: String
+		if value:
+			status_text = "ON"
+		else:
+			status_text = "OFF"
+		GUI.flashlight_label.text = "Flashlight " + status_text + " [F]"
+		flashlight.visible = value
+		flashlight_on = value
 
 var move_speed: float
 var target_speed: float
@@ -50,11 +81,82 @@ func _on_flicker_timer_timeout() -> void:
 	flicker_timer.wait_time = randf_range(0.05, 0.15)
 	flashlight.light_energy = randf_range(0.8, 1.2)
 
-func _unhandled_input(_event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.is_pressed():
+			if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not GameData.exit.using_terminal:
+				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+			elif GameData.exit.using_terminal:
+				GameData.exit.terminal_viewport.code_entry_field.grab_focus()
+	
 	if Input.is_action_just_pressed("interact") and interact_ray.is_colliding() and camera.current:
 		var collider := interact_ray.get_collider()
-		if collider and collider.has_method("interact"):
-			collider.interact()  # Call the interact method on the collider
+		var normal := interact_ray.get_collision_normal()
+		#print(collider)
+		if collider:
+			if collider.has_method("interact"):
+				collider.interact()  # Call the interact method on the collider
+			if collider is Map and abs(normal.y) < 0.1:
+				if void_uses > 0 or infinite_voiding:
+					var map: Map = collider
+					var collision_point := interact_ray.get_collision_point()
+					
+					# Calculate the cell position from the collision point
+					var cell_size := map.cell_size
+					var cell_pos := Vector2i(
+						int(round((collision_point.x + (-normal.x * 0.5 * cell_size)) / cell_size)),
+						int(round((collision_point.z + (-normal.z * 0.5 * cell_size)) / cell_size))
+					)
+					
+					#print("Cell being mined: ", cell_pos, " with wall normal: ", normal)
+					
+					# Check if the cell exists in the map
+					var cell_exists := false
+					for cell in map.cells:
+						if cell.pos == cell_pos:
+							cell_exists = true
+							print("Cell exists in map")
+							break
+					
+					# Check if the cell contains the exit
+					for exit_cell_pos: Vector2i in map.exit_cells.keys():
+						var door_cell_pos: Vector2i = exit_cell_pos + map.exit_cells[exit_cell_pos]
+						if cell_pos == door_cell_pos:
+							GUI.display_notification("Unable to void exit.")
+							#print("Cannot mine the exit door cell at: ", cell_pos)
+							return
+					
+					# Check if the cell contains sticky notes
+					for sticky_note in map.sticky_notes:
+						if sticky_note.cell_pos == cell_pos:
+							GUI.display_notification("Unable to void a wall with a sticky note.")
+							#print("Cannot mine cell with sticky notes at: ", cell_pos)
+							return
+					
+					# Check if the cell has a shelf adjacent to it
+					for shelf in map.objects.get_children():
+						if shelf is Shelf and shelf.cell_pos == cell_pos:
+							GUI.display_notification("Unable to void a wall next to a shelf.")
+							#print("Cannot mine a cell with a shelf next to it at: ", cell_pos)
+							return
+					
+					if !cell_exists:
+						var void_wall: VoidWall = VOID_WALL.instantiate()
+						void_wall.update_size(Vector3(map.cell_size, map.wall_height, map.cell_size))
+						void_wall.position = Vector3(cell_pos.x * map.cell_size, map.wall_height / 2.0, cell_pos.y * map.cell_size)
+						map.objects.add_child(void_wall)
+						
+						var new_cell := Cell.new(cell_pos)
+						map.cells.append(new_cell)
+						# Update the map visuals and collider
+						map.map_mesh.update_mesh()
+						map.update_collider()
+						
+						void_uses -= 1
+						void_uses = max(void_uses, 0)
+						#print("Mined wall at: ", cell_pos)
+					else:
+						print("Cell already exists.")
 	
 	if Input.is_action_just_pressed("toggle_cursor_visibility"):
 		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -64,7 +166,10 @@ func _unhandled_input(_event: InputEvent) -> void:
 	
 	if Input.is_action_just_pressed("flashlight"):
 		if camera.current:
-			flashlight.visible = !flashlight.visible
+			if flashlight_on:
+				flashlight_on = false
+			elif flashlight_charge > 0:
+				flashlight_on = true
 	
 	if Input.is_action_just_pressed("toggle_overview"):
 		if overview_camera.current:
@@ -88,9 +193,19 @@ func _process(delta: float) -> void:
 		var collider := interact_ray.get_collider()
 		if collider == null:
 			return
-		var interactable: Interactable = collider as Interactable
-		if interactable != null:
-			GUI.display_interact_label(interactable.interact_prompt)
+		if collider is Interactable:
+			var interactable: Interactable = collider as Interactable
+			if interactable != null:
+				GUI.display_interact_label(interactable.interact_prompt)
+		if collider is Map:
+			var map: Map = collider as Map
+			if map != null:
+				if infinite_voiding:
+					GUI.display_interact_label("Void wall [Uses left: ∞]")
+				elif void_uses > 0:
+					GUI.display_interact_label("Void wall [Uses left: " + str(void_uses) + "]")
+			else:
+				GUI.hide_interact_label()
 	else:
 		GUI.hide_interact_label()
 	
@@ -100,17 +215,27 @@ func _process(delta: float) -> void:
 	elif move_speed > target_speed:
 		move_speed = lerp(move_speed, target_speed, deceleration * delta)
 	
-	var dist: float = global_transform.origin.distance_to(GameData.office_manager.global_transform.origin)
-	if flashlight.visible:
+	if flashlight_on:
+		if not unlimited_flashlight:
+			flashlight_charge -= flashlight_drain_rate * delta
+			flashlight_charge = max(flashlight_charge, 0)  # Clamp to 0
+		
+		if flashlight_charge == 0:
+			flashlight_on = false
+			flashlight.visible = false
+		
+		var dist: float = global_transform.origin.distance_to(GameData.office_manager.global_transform.origin)
 		if dist < off_distance:
 			flicker_timer.stop()
-			flashlight.light_energy = 0
+			flashlight.light_energy = 0.05
 		elif dist < flicker_distance:
 			if flicker_timer.is_stopped():
 				flicker_timer.start()
 		else:
 			flicker_timer.stop()
 			flashlight.light_energy = 1
+	
+	GUI.update_flashlight_charge(flashlight_charge, flashlight_max_charge)
 	
 	#var current_speed := current_velocity.length()
 	#var max_speed := sprint_speed
@@ -176,12 +301,12 @@ func stop_footstep_audio() -> void:
 
 func restrict_movement() -> void:
 	movement_restricted = true
-	if flashlight.visible:
+	if flashlight_on:
 		flashlight_was_visible = true
-		flashlight.visible = false
+		flashlight_on = false
 
 func enable_movement() -> void:
 	movement_restricted = false
 	if flashlight_was_visible:
-		flashlight.visible = true
+		flashlight_on = true
 		flashlight_was_visible = false

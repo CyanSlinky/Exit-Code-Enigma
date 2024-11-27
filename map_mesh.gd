@@ -107,7 +107,10 @@ func update_mesh() -> void:
 	mesh = array_mesh
 
 func neighbor_exists(pos: Vector2i) -> bool:
-	return pos in map.visited
+	for cell in map.cells:
+		if cell.pos == pos:
+			return true  # Neighboring cell exists
+	return false  # Neighboring cell does not exist
 
 func update_cell_faces(st: SurfaceTool, cell: Cell) -> void:
 	var half_size: float = map.cell_size / 2.0

@@ -170,6 +170,7 @@ void vertex() {
 	
 	// Apply a small offset along the normal to prevent Z-fighting
 	world_pos += normal_dir * 0.001;
+	VERTEX.y += 0.001;
 }
 
 void fragment() {

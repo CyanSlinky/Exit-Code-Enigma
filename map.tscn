@@ -4,7 +4,7 @@
 [ext_resource type="Shader" path="res://liminal_office.gdshader" id="2_6dyxt"]
 [ext_resource type="PackedScene" uid="uid://dhp8lm7pdbnw1" path="res://exit.tscn" id="2_nv0t8"]
 [ext_resource type="Script" path="res://map_mesh.gd" id="2_r36s0"]
-[ext_resource type="PackedScene" uid="uid://b4308tqbh560r" path="res://clutter_shelf.tscn" id="3_fani7"]
+[ext_resource type="PackedScene" uid="uid://b4308tqbh560r" path="res://shelf.tscn" id="3_fani7"]
 [ext_resource type="PackedScene" uid="uid://bejxdfigoj13c" path="res://sticky_note.tscn" id="4_5yljo"]
 [ext_resource type="PackedScene" uid="uid://dyr845je3hws3" path="res://ceiling_light.tscn" id="4_wgghb"]
 [ext_resource type="PackedScene" uid="uid://c3w4n7xomnxr2" path="res://office_manager.tscn" id="6_8nu6q"]
@@ -39,6 +39,7 @@ shader_parameter/ceiling_tile_size = 3.0
 shader_parameter/ceiling_grid_line_width = 0.4
 
 [node name="Map" type="StaticBody3D"]
+collision_layer = 8
 script = ExtResource("1_vg6v0")
 exit_scene = ExtResource("2_nv0t8")
 shelf_scene = ExtResource("3_fani7")

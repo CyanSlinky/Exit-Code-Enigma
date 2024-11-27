@@ -38,6 +38,11 @@ func _ready() -> void:
 func start_game() -> void:
 	#print("start")
 	xray = false
+	if player != null:
+		player.unlimited_flashlight = false
+		player.flashlight_charge = 100.0
+		player.infinite_voiding = false
+		player.void_uses = 0
 	GUI.pause_screen.visible = false
 	get_tree().paused = false
 	randomize()

@@ -3,6 +3,8 @@ class_name StickyNote
 
 @onready var mesh_instance: MeshInstance3D = $MeshInstance
 
+var cell_pos: Vector2i
+
 var message: String : 
 	set(value):
 		message = value
