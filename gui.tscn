@@ -202,9 +202,20 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/separator = SubResource("StyleBoxEmpty_4m64l")
 
+[node name="ReturnerLabel" type="Label" parent="GameScreen/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+text = "Returners: 0 [R]"
+horizontal_alignment = 2
+
+[node name="TeleporterLabel" type="Label" parent="GameScreen/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+text = "Teleporters: 0 [T]"
+horizontal_alignment = 2
+
 [node name="FlashlightLabel" type="Label" parent="GameScreen/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 text = "Flashlight ON [F]"
+horizontal_alignment = 2
 
 [node name="FlashlightBar" type="ProgressBar" parent="GameScreen/HBoxContainer/VBoxContainer2"]
 layout_mode = 2

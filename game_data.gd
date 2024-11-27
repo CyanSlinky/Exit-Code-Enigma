@@ -43,6 +43,8 @@ func start_game() -> void:
 		player.flashlight_charge = 100.0
 		player.infinite_voiding = false
 		player.void_uses = 0
+		player.infinite_returning = false
+		player.returner_uses = 0
 	GUI.pause_screen.visible = false
 	get_tree().paused = false
 	randomize()

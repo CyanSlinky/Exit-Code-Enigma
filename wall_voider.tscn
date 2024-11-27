@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://interactable.gd" id="1_frw7e"]
 [ext_resource type="Script" path="res://wall_voider.gd" id="1_o4lik"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rveva"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qc85b"]
 albedo_color = Color(0.333333, 0.176471, 0.823529, 1)
 metallic = 1.0
 roughness = 0.45
@@ -23,7 +23,7 @@ size = Vector3(0.3, 0.3, 0.3)
 script = ExtResource("1_o4lik")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-material_override = SubResource("StandardMaterial3D_rveva")
+material_override = SubResource("StandardMaterial3D_qc85b")
 mesh = SubResource("BoxMesh_wxvcb")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

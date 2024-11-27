@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://ehxjun1gtjbc"]
+[gd_scene load_steps=9 format=3 uid="uid://ehxjun1gtjbc"]
 
 [ext_resource type="Script" path="res://player.gd" id="1_ljjms"]
 [ext_resource type="Script" path="res://camera_controller.gd" id="2_q32wd"]
 [ext_resource type="AudioStream" uid="uid://cb3tqjp83f7ak" path="res://audio/footstep_audio_randomizer.tres" id="3_nbtyx"]
+[ext_resource type="AudioStream" uid="uid://csnxln3162ml" path="res://audio/sfx_teleport.wav" id="4_fv1ao"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_44s3o"]
 
@@ -63,3 +64,6 @@ light_energy = 0.2
 stream = ExtResource("3_nbtyx")
 volume_db = -25.0
 bus = &"SFX"
+
+[node name="TeleportAudio" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("4_fv1ao")

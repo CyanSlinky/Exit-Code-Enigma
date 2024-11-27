@@ -1,9 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://b4308tqbh560r"]
+[gd_scene load_steps=10 format=3 uid="uid://b4308tqbh560r"]
 
 [ext_resource type="Script" path="res://shelf.gd" id="1_3nj6y"]
 [ext_resource type="ArrayMesh" uid="uid://ce1mjmp8owds8" path="res://shelves_01.obj" id="1_i40v7"]
 [ext_resource type="PackedScene" uid="uid://bhkbhevvx4vaw" path="res://wall_voider.tscn" id="2_pioqx"]
 [ext_resource type="PackedScene" uid="uid://b6u0wjjms8xpi" path="res://flashlight_battery_pack.tscn" id="3_lx2ng"]
+[ext_resource type="PackedScene" uid="uid://xvxpi6w0o6v3" path="res://returner.tscn" id="4_vm2f4"]
+[ext_resource type="PackedScene" uid="uid://cqp4ogudxwwwa" path="res://random_teleporter.tscn" id="5_lk2ry"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ex0rt"]
 albedo_color = Color(0.313726, 0.313726, 0.333333, 1)
@@ -18,7 +20,7 @@ size = Vector3(5.54, 0.1, 1.094)
 
 [node name="Shelf" type="Node3D" node_paths=PackedStringArray("spawn_positions")]
 script = ExtResource("1_3nj6y")
-spawn_scenes = Array[PackedScene]([ExtResource("2_pioqx"), ExtResource("3_lx2ng")])
+spawn_scenes = Array[PackedScene]([ExtResource("2_pioqx"), ExtResource("3_lx2ng"), ExtResource("4_vm2f4"), ExtResource("5_lk2ry")])
 spawn_positions = [NodePath("SpawnPos"), NodePath("SpawnPos2"), NodePath("SpawnPos3"), NodePath("SpawnPos4"), NodePath("SpawnPos5"), NodePath("SpawnPos6"), NodePath("SpawnPos7"), NodePath("SpawnPos8"), NodePath("SpawnPos9")]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]

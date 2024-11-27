@@ -1,0 +1,38 @@
+[gd_scene load_steps=7 format=3 uid="uid://xvxpi6w0o6v3"]
+
+[ext_resource type="Script" path="res://returner.gd" id="1_mar1k"]
+[ext_resource type="PackedScene" uid="uid://b68t68u7w22om" path="res://interactable.tscn" id="2_2ui0f"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nlw3y"]
+albedo_color = Color(0, 1, 0, 1)
+metallic = 1.0
+roughness = 0.45
+emission_enabled = true
+emission = Color(0, 0.27451, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_mpc6q"]
+size = Vector3(0.2, 0.2, 0.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_k6gbe"]
+size = Vector3(0.2, 0.2, 0.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_b1gcp"]
+size = Vector3(0.3, 0.3, 0.3)
+
+[node name="Returner" type="RigidBody3D"]
+script = ExtResource("1_mar1k")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_nlw3y")
+mesh = SubResource("BoxMesh_mpc6q")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_k6gbe")
+
+[node name="Interactable" parent="." instance=ExtResource("2_2ui0f")]
+interact_prompt = "Pick up [Returner]"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interactable"]
+shape = SubResource("BoxShape3D_b1gcp")
+
+[connection signal="interaction_occurred" from="Interactable" to="." method="_on_interactable_interaction_occurred"]

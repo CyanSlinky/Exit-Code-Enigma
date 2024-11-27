@@ -248,7 +248,27 @@ func _on_code_entry_field_text_submitted(new_text: String) -> void:
 		code_result_label.text = "infinite wall voiding " + void_string
 		code_entry_field.clear()
 		return
-	if new_text == "XRAY":
+	if new_text == "RETURN" or new_text == "RETURNER" or new_text == "HOME" or new_text == "HOMEBOUND" or new_text == "HEARTH" or new_text == "BOUND":
+		GameData.player.infinite_returning = !GameData.player.infinite_returning
+		var return_string: String
+		if GameData.player.infinite_returning:
+			return_string = "Enabled"
+		else:
+			return_string = "Disabled"
+		code_result_label.text = "unlimited returning " + return_string
+		code_entry_field.clear()
+		return
+	if new_text == "TELEPORT" or new_text == "TELEPORTER" or new_text == "WARP" or new_text == "RANDOM" or new_text == "WARPER" or new_text == "JUMPER":
+		GameData.player.infinite_teleporting = !GameData.player.infinite_teleporting
+		var teleport_string: String
+		if GameData.player.infinite_teleporting:
+			teleport_string = "Enabled"
+		else:
+			teleport_string = "Disabled"
+		code_result_label.text = "unlimited teleporting " + teleport_string
+		code_entry_field.clear()
+		return
+	if new_text == "XRAY" or new_text == "XRAYVISION" or new_text == "XRAY VISION" or new_text == "VISION":
 		GameData.xray = !GameData.xray
 		var xray_string: String
 		if GameData.xray:
@@ -256,18 +276,6 @@ func _on_code_entry_field_text_submitted(new_text: String) -> void:
 		else:
 			xray_string = "Disabled"
 		code_result_label.text = "x-ray " + xray_string
-		code_entry_field.clear()
-		return
-	if new_text == "TELEPORT":
-		if GameData.exit.using_terminal:
-			GameData.exit.toggle_terminal_usage()
-		var cell_size: float = GameData.map.cell_size
-		var cell_pos: Vector2i = GameData.map.find_random_empty_cell().pos * cell_size
-		var teleport_pos: Vector3 = Vector3(cell_pos.x, 0.0, cell_pos.y)
-		GameData.player.global_position = teleport_pos
-		code_result_label.text = "you got teleported"
-		code_entry_field.deselect()
-		code_entry_field.release_focus()
 		code_entry_field.clear()
 		return
 	if new_text == "MAP":

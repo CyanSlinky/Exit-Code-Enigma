@@ -15,6 +15,9 @@ extends Control
 @onready var notification_timer: Timer = $GameScreen/HBoxContainer2/VBoxContainer/NotificationLabel/NotificationTimer
 @onready var game_timer: Timer = $GameScreen/HBoxContainer/VBoxContainer/GameTimeElapsedLabel/GameTimer
 
+@onready var returner_label: Label = $GameScreen/HBoxContainer/VBoxContainer2/ReturnerLabel
+@onready var teleporter_label: Label = $GameScreen/HBoxContainer/VBoxContainer2/TeleporterLabel
+
 @onready var flashlight_label: Label = $GameScreen/HBoxContainer/VBoxContainer2/FlashlightLabel
 @onready var flashlight_bar: ProgressBar = $GameScreen/HBoxContainer/VBoxContainer2/FlashlightBar
 

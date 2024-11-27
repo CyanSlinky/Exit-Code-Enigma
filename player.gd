@@ -10,6 +10,7 @@ class_name Player
 @onready var map_indicator: MeshInstance3D = $MapIndicator
 
 @onready var footstep_audio: AudioStreamPlayer3D = $FootstepAudio
+@onready var teleport_audio: AudioStreamPlayer3D = $TeleportAudio
 
 @export var walk_speed: float = 5.0
 @export var sprint_speed: float = 15.0
@@ -33,6 +34,25 @@ const VOID_WALL = preload("res://void_wall.tscn")
 
 var infinite_voiding: bool
 var void_uses: int
+
+var infinite_returning: bool :
+	set(value):
+		infinite_returning = value
+		if value:
+			GUI.returner_label.text = "Returners: ∞ [R]"
+		else:
+			GUI.returner_label.text = "Returners: " + str(GameData.player.returner_uses) + " [R]"
+var returner_uses: int
+
+var infinite_teleporting: bool :
+	set(value):
+		infinite_teleporting = value
+		if value:
+			GUI.teleporter_label.text = "Teleporters: ∞ [T]"
+		else:
+			GUI.teleporter_label.text = "Teleporters: " + str(GameData.player.teleport_uses) + " [T]"
+var teleport_uses: int
+
 var movement_restricted: bool
 
 var unlimited_flashlight: bool :
@@ -88,6 +108,26 @@ func _unhandled_input(event: InputEvent) -> void:
 				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 			elif GameData.exit.using_terminal:
 				GameData.exit.terminal_viewport.code_entry_field.grab_focus()
+	
+	if Input.is_action_just_pressed("return_to_exit") and camera.current:
+		if infinite_returning:
+			position = Vector3.ZERO
+			teleport_audio.play()
+		if returner_uses > 0 and not infinite_returning:
+			returner_uses -= 1
+			returner_uses = max(returner_uses, 0)
+			GUI.returner_label.text = "Returners: " + str(GameData.player.returner_uses) + " [R]"
+			position = Vector3.ZERO
+			teleport_audio.play()
+	
+	if Input.is_action_just_pressed("teleport") and camera.current:
+		if infinite_teleporting:
+			teleport_random()
+		if teleport_uses > 0 and not infinite_teleporting:
+			teleport_uses -= 1
+			teleport_uses = max(teleport_uses, 0)
+			GUI.teleporter_label.text = "Teleporters: " + str(GameData.player.teleport_uses) + " [T]"
+			teleport_random()
 	
 	if Input.is_action_just_pressed("interact") and interact_ray.is_colliding() and camera.current:
 		var collider := interact_ray.get_collider()
@@ -197,6 +237,8 @@ func _process(delta: float) -> void:
 			var interactable: Interactable = collider as Interactable
 			if interactable != null:
 				GUI.display_interact_label(interactable.interact_prompt)
+			else:
+				GUI.hide_interact_label()
 		if collider is Map:
 			var map: Map = collider as Map
 			if map != null:
@@ -204,6 +246,8 @@ func _process(delta: float) -> void:
 					GUI.display_interact_label("Void wall [Uses left: ∞]")
 				elif void_uses > 0:
 					GUI.display_interact_label("Void wall [Uses left: " + str(void_uses) + "]")
+				else:
+					GUI.hide_interact_label()
 			else:
 				GUI.hide_interact_label()
 	else:
@@ -310,3 +354,10 @@ func enable_movement() -> void:
 	if flashlight_was_visible:
 		flashlight_on = true
 		flashlight_was_visible = false
+
+func teleport_random() -> void:
+	var cell_size: float = GameData.map.cell_size
+	var cell_pos: Vector2i = GameData.map.find_random_empty_cell().pos * cell_size
+	var teleport_pos: Vector3 = Vector3(cell_pos.x, 0.0, cell_pos.y)
+	global_position = teleport_pos
+	teleport_audio.play()
